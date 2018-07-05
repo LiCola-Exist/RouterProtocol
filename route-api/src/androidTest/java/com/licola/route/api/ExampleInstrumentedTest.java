@@ -1,4 +1,4 @@
-package com.licola.model.route.api;
+package com.licola.route.api;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

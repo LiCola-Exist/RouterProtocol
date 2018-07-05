@@ -1,0 +1,46 @@
+package com.licola.route.api;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
+import com.licola.route.annotation.RouteMeta;
+import java.util.Map;
+
+/**
+ * Created by LiCola on 2018/7/5.
+ */
+public class JumpInterceptor implements Interceptor {
+
+  @Override
+  public RouteResponse intercept(RouteApi route, RouteResponse response) {
+
+    Map<String, RouteMeta> routeMap = route.getRouteMap();
+    if (routeMap.isEmpty()) {
+      return RouteResponse.notifyFailed(response);
+    }
+
+    String target = response.getTarget();
+    RouteMeta routeMeta = routeMap.get(target);
+    if (routeMeta == null) {
+      return RouteResponse.notifyFailed(response);
+    }
+
+    Application application = route.getApplication();
+    Class<?> metaTarget = routeMeta.getTarget();
+    Intent intent = new Intent(application, metaTarget);
+    if (isEmptyResolveIntent(application,intent)){
+      return RouteResponse.notifyFailed(response);
+    }
+    application.startActivity(intent);
+
+    return RouteResponse.notifySuccess(response, metaTarget, target, routeMeta.getModule());
+  }
+
+  public static boolean isEmptyResolveIntent(Context context, Intent intent) {
+    if (intent == null || context == null) {
+      return true;
+    }
+    //只有当检查出能够接受intent的对象不为空 返回true
+    return intent.resolveActivity(context.getPackageManager()) == null;
+  }
+}

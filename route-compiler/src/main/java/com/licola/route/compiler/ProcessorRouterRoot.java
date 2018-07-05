@@ -1,10 +1,12 @@
 package com.licola.route.compiler;
 
 import static com.licola.route.compiler.Constants.KEY_MODULE_NAME;
+import static com.licola.route.compiler.Constants.PACKAGE_BASE;
+import static com.licola.route.compiler.Constants.ROUTE_CLASS_PREFIX;
+import static com.licola.route.compiler.Constants.ROUTE_CLASS_PROTOCOL_PREFIX;
 
 import com.google.auto.service.AutoService;
 import com.licola.route.annotation.Route;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
@@ -34,11 +37,6 @@ import javax.lang.model.element.TypeElement;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class ProcessorRouterRoot extends AbstractProcessor {
 
-  private static final String DEFAULT_ROUTE_MAPPER_NAME = "RouteMapper";
-  private static final String DEFAULT_ROUTE_CONTRACT_NAME = "RouteContract";
-  private static final String PACKAGE_OF_GENERATE_FILE = "com.licola.routermapper.router";
-
-
   private Filer filer;
   private String moduleName;
 
@@ -47,7 +45,6 @@ public class ProcessorRouterRoot extends AbstractProcessor {
     super.init(processingEnvironment);
     filer = processingEnvironment.getFiler();
     moduleName = processingEnvironment.getOptions().get(KEY_MODULE_NAME);
-    moduleName = Utils.checkAndUpperFirstChar(moduleName);
     Messager messager = processingEnvironment.getMessager();
   }
 
@@ -72,19 +69,29 @@ public class ProcessorRouterRoot extends AbstractProcessor {
 
     List<OutWriteCommand> commands = new ArrayList<>();
 
+    final Set<? extends Element> elements = roundEnvironment
+        .getElementsAnnotatedWith(Route.class);
+
+    if (CheckUtils.isEmpty(elements)){
+      return true;
+    }
+
+    String noduleUpName = Utils.checkAndUpperFirstChar(moduleName);
+    final String protocolName = ROUTE_CLASS_PROTOCOL_PREFIX + noduleUpName;
+    final String routeName = ROUTE_CLASS_PREFIX + noduleUpName;
     commands.add(new OutWriteCommand() {
       @Override
       public void execute() throws IOException {
 
-        TypeSpec typeSpec = ProcessorRouteContract
-            .build(roundEnvironment.getElementsAnnotatedWith(Route.class))
-            .process(DEFAULT_ROUTE_CONTRACT_NAME + moduleName);
+        TypeSpec typeSpec = ProcessorRouteProtocol
+            .build(elements,protocolName,moduleName)
+            .process();
 
         if (typeSpec == null) {
           return;
         }
 
-        JavaFile javaFile = JavaFile.builder(PACKAGE_OF_GENERATE_FILE, typeSpec).build();
+        JavaFile javaFile = JavaFile.builder(PACKAGE_BASE, typeSpec).build();
         javaFile.writeTo(filer);
       }
     });
@@ -93,24 +100,14 @@ public class ProcessorRouterRoot extends AbstractProcessor {
       @Override
       public void execute() throws IOException {
 
-        //得到定义的契约类
-        ClassName classNameContract =
-            ClassName.get(PACKAGE_OF_GENERATE_FILE, DEFAULT_ROUTE_CONTRACT_NAME + moduleName);
-
-        ClassName classNameContractAnnotation = ClassName
-            .get(PACKAGE_OF_GENERATE_FILE, DEFAULT_ROUTE_CONTRACT_NAME + moduleName,
-                ProcessorRouteContract.AnnotationContractName);//获取契约类的注释
-
-        TypeSpec typeSpec = ProcessorRouteMapper
-            .build(roundEnvironment.getElementsAnnotatedWith(Route.class))
-            .process(DEFAULT_ROUTE_MAPPER_NAME + moduleName, classNameContract,
-                classNameContractAnnotation);
+        TypeSpec typeSpec = ProcessorRoute.build(routeName,protocolName)
+            .process();
 
         if (typeSpec == null) {
           return;
         }
 
-        JavaFile javaFile = JavaFile.builder(PACKAGE_OF_GENERATE_FILE, typeSpec).build();
+        JavaFile javaFile = JavaFile.builder(PACKAGE_BASE, typeSpec).build();
         javaFile.writeTo(filer);
       }
     });

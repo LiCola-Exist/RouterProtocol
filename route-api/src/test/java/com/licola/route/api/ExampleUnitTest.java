@@ -1,4 +1,4 @@
-package com.licola.model.route.api;
+package com.licola.route.api;
 
 import org.junit.Test;
 
