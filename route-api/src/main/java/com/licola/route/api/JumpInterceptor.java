@@ -28,10 +28,15 @@ public class JumpInterceptor implements Interceptor {
     Application application = route.getApplication();
     Class<?> metaTarget = routeMeta.getTarget();
     Intent intent = new Intent(application, metaTarget);
-    if (isEmptyResolveIntent(application,intent)){
+    if (isEmptyResolveIntent(application, intent)) {
       return RouteResponse.notifyFailed(response);
     }
     application.startActivity(intent);
+
+    if (response.getCode() == RouteCode.CODE_REDIRECT) {
+      return RouteResponse
+          .notifySuccessByRedirect(response, metaTarget, target, routeMeta.getModule());
+    }
 
     return RouteResponse.notifySuccess(response, metaTarget, target, routeMeta.getModule());
   }

@@ -85,7 +85,7 @@ public class RouteApi implements InvocationHandler {
       if (argInterceptor != null) {
         response = argInterceptor.intercept(RouteApi.this, response);
         if (response.getCode() == RouteCode.CODE_FAILED) {
-          return false;
+          return RouteCode.CODE_FAILED;
         }
       }
 
@@ -93,11 +93,11 @@ public class RouteApi implements InvocationHandler {
       for (Interceptor interceptor : interceptors) {
         response = interceptor.intercept(RouteApi.this, response);
         if (response.getCode() == RouteCode.CODE_FAILED) {
-          return false;
+          return RouteCode.CODE_FAILED;
         }
       }
 
-      return response.getCode()==RouteCode.CODE_SUCCESS;
+      return response.getCode();
     }
 
     return null;

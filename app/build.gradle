@@ -4,17 +4,21 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.licola.model.routerprotocol"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
 
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [moduleName: project.getName()]
             }
         }
+
+        resourcePrefix "app"
     }
     buildTypes {
         release {
@@ -28,10 +32,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':module')
+    implementation project(':module-third')
 
     implementation project(':route-api')
     implementation project(':route-annotation')
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     annotationProcessor project(':route-compiler')
 
     implementation 'com.licola:llogger:1.4.1'

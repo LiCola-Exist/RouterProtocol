@@ -2,8 +2,10 @@ package com.licola.route.compiler;
 
 import static com.licola.route.compiler.Constants.PACKAGE_API;
 import static com.licola.route.compiler.Constants.PACKAGE_BASE;
+import static com.licola.route.compiler.Constants.ROUTE_ANNOTATION_CODE;
 import static com.licola.route.compiler.Constants.ROUTE_ANNOTATION_PROTOCOL;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INTERCEPTOR;
+import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_CODE;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_1;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_2;
@@ -44,7 +46,8 @@ public class ProcessorRoute {
         .addParameter(ParameterSpec.builder(String.class, ROUTE_METHOD_NAVIGATION_PARAMETER_1)
             .addAnnotation(ClassName.get(PACKAGE_BASE, protocolName, ROUTE_ANNOTATION_PROTOCOL))
             .build())
-        .returns(boolean.class)
+        .addAnnotation(ClassName.get(PACKAGE_API,ROUTE_CLASS_ROUTE_CODE,ROUTE_ANNOTATION_CODE))
+        .returns(int.class)
         .build();
 
     MethodSpec methodSpec2 = MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
@@ -56,7 +59,8 @@ public class ProcessorRoute {
             ParameterSpec.builder(ClassName.get(PACKAGE_API, ROUTE_CLASS_INTERCEPTOR),
                 ROUTE_METHOD_NAVIGATION_PARAMETER_2)
                 .build())
-        .returns(boolean.class)
+        .addAnnotation(ClassName.get(PACKAGE_API,ROUTE_CLASS_ROUTE_CODE,ROUTE_ANNOTATION_CODE))
+        .returns(int.class)
         .build();
 
     classSpecBuild

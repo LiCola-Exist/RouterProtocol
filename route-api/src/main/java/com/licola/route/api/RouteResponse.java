@@ -8,7 +8,7 @@ public class RouteResponse {
   public static RouteResponse buildProcess(String target) {
     RouteResponse routeResponse = new RouteResponse();
     routeResponse.code = RouteCode.CODE_PROCESS;
-    routeResponse.target=target;
+    routeResponse.target = target;
     return routeResponse;
   }
 
@@ -17,17 +17,27 @@ public class RouteResponse {
     return routeResponse;
   }
 
-  public static RouteResponse notifySuccess(RouteResponse routeResponse,Class<?> targetClass,String target,String module){
-    routeResponse.code=RouteCode.CODE_SUCCESS;
-    routeResponse.targetClass=targetClass;
-    routeResponse.target=target;
-    routeResponse.module=module;
+  public static RouteResponse notifySuccess(RouteResponse routeResponse, Class<?> targetClass,
+      String target, String module) {
+    routeResponse.code = RouteCode.CODE_SUCCESS;
+    routeResponse.targetClass = targetClass;
+    routeResponse.target = target;
+    routeResponse.module = module;
     return routeResponse;
   }
 
-  public static RouteResponse notifyTarget(RouteResponse routeResponse,String target){
+  public static RouteResponse notifySuccessByRedirect(RouteResponse routeResponse, Class<?> targetClass,
+      String target, String module) {
     routeResponse.code = RouteCode.CODE_REDIRECT;
-    routeResponse.target=target;
+    routeResponse.targetClass = targetClass;
+    routeResponse.target = target;
+    routeResponse.module = module;
+    return routeResponse;
+  }
+
+  public static RouteResponse notifyTarget(RouteResponse routeResponse, String target) {
+    routeResponse.code = RouteCode.CODE_REDIRECT;
+    routeResponse.target = target;
     return routeResponse;
   }
 

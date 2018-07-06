@@ -11,6 +11,7 @@ import com.licola.route.RouteProtocolModule;
 import com.licola.route.annotation.Route;
 import com.licola.route.api.Interceptor;
 import com.licola.route.api.RouteApi;
+import com.licola.route.api.RouteCode;
 import com.licola.route.api.RouteResponse;
 
 @Route
@@ -27,11 +28,7 @@ public class MainActivity extends AppCompatActivity {
     RouteApi routeApi = RouteApi.build(getApplication(), new RouteProtocolApp());
     RouteApp routeApp = routeApi.create(RouteApp.class);
 
-    if (routeApp.navigation(RouteProtocolApp.SecondActivity)) {
-      LLogger.d("成功跳转");
-    } else {
-      LLogger.e("跳转界面失败");
-    }
+    routeApp.navigation(RouteProtocolApp.SecondActivity);
   }
 
   public void onNavigationInterceptorClick(View view) {
@@ -45,11 +42,20 @@ public class MainActivity extends AppCompatActivity {
     });
 
     RouteApp routeApp = routeApi.create(RouteApp.class);
-
-    if (routeApp.navigation(RouteProtocolApp.SecondActivity)) {
-      LLogger.d("成功跳转");
-    } else {
-      LLogger.e("跳转界面失败");
+    @RouteCode.Code int navigation = routeApp.navigation(RouteProtocolApp.SecondActivity);
+    switch (navigation) {
+      case RouteCode.CODE_FAILED:
+        LLogger.e("跳转界面失败");
+        break;
+      case RouteCode.CODE_PROCESS:
+        LLogger.d("跳转处理中");
+        break;
+      case RouteCode.CODE_REDIRECT:
+        LLogger.d("重定向跳转");
+        break;
+      case RouteCode.CODE_SUCCESS:
+        LLogger.d("成功跳转");
+        break;
     }
   }
 
@@ -62,11 +68,10 @@ public class MainActivity extends AppCompatActivity {
       }
     });
     RouteApp routeApp = routeApi.create(RouteApp.class);
-    boolean navigation = routeApp.navigation(RouteProtocolApp.SecondActivity, new Interceptor() {
+    routeApp.navigation(RouteProtocolApp.SecondActivity, new Interceptor() {
       @Override
       public RouteResponse intercept(RouteApi route, RouteResponse response) {
         LLogger.d("随参数注入的拦截器 优先级最高 可以修改目标 重定向到其他页面");
-
         return RouteResponse.notifyTarget(response, RouteProtocolApp.RedirectActivity);
       }
     });
@@ -76,12 +81,6 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationModuleClick(View view) {
     RouteApi routeApi = RouteApi.build(getApplication(), new RouteProtocolModule());
     RouteModule routeModule = routeApi.create(RouteModule.class);
-
-
-    if (routeModule.navigation(RouteProtocolModule.ModuleActivity)) {
-      LLogger.d("成功跳转");
-    } else {
-      LLogger.e("跳转界面失败");
-    }
+    routeModule.navigation(RouteProtocolModule.ModuleActivity);
   }
 }

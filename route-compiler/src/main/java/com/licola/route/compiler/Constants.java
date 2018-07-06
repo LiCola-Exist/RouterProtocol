@@ -17,9 +17,11 @@ public class Constants {
   static final String ROUTE_CLASS_PROTOCOL_PREFIX = "RouteProtocol";
 
   static final String ROUTE_CLASS_INTERCEPTOR = "Interceptor";
+  static final String ROUTE_CLASS_ROUTE_CODE = "RouteCode";
 
 
-  static final String ROUTE_ANNOTATION_PROTOCOL = "Protocol";//契约类注释名
+  static final String ROUTE_ANNOTATION_PROTOCOL = "Protocol";
+  static final String ROUTE_ANNOTATION_CODE = "Code";
 
   static final String ROUTE_METHOD_LOAD ="load";
   static final String ROUTE_METHOD_LOAD_PARAMETER ="map";
