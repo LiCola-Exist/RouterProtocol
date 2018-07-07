@@ -35,14 +35,16 @@ import javax.lang.model.element.TypeElement;
 public class ProcessorRouterRoot extends AbstractProcessor {
 
   private Filer filer;
+  private Messager messager;
   private String moduleName;
 
   @Override
   public synchronized void init(ProcessingEnvironment processingEnvironment) {
     super.init(processingEnvironment);
     filer = processingEnvironment.getFiler();
+    messager = processingEnvironment.getMessager();
+
     moduleName = processingEnvironment.getOptions().get(KEY_MODULE_NAME);
-    Messager messager = processingEnvironment.getMessager();
   }
 
   @Override
@@ -64,21 +66,31 @@ public class ProcessorRouterRoot extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations,
       final RoundEnvironment roundEnvironment) {
 
+    if (moduleName == null) {
+      Utils.error(messager, "请配置moduleName模块名称");
+      throw new IllegalArgumentException("请配置moduleName模块名称 项目build.gradle android.defaultConfig \n"
+          + "        javaCompileOptions {\n"
+          + "            annotationProcessorOptions {\n"
+          + "                arguments = [ moduleName : \"模块名称\" ]//或获取project.getName()\n"
+          + "            }\n"
+          + "        }");
+    }
+
     final Set<? extends Element> elements = roundEnvironment
         .getElementsAnnotatedWith(Route.class);
 
-    if (CheckUtils.isEmpty(elements)){
+    if (CheckUtils.isEmpty(elements)) {
       return true;
     }
 
     String noduleUpName = Utils.checkAndUpperFirstChar(moduleName);
     final String className = ROUTE_CLASS_PREFIX + noduleUpName;
 
-    OutWriteCommand writeCommand=new OutWriteCommand() {
+    OutWriteCommand writeCommand = new OutWriteCommand() {
       @Override
       public void execute() throws IOException {
         TypeSpec typeSpec = ProcessorRoute
-            .build(elements,PACKAGE_BASE,className,moduleName)
+            .build(elements, PACKAGE_BASE, className, moduleName)
             .process();
 
         if (typeSpec == null) {
@@ -98,5 +110,6 @@ public class ProcessorRouterRoot extends AbstractProcessor {
 
     return true;
   }
+
 
 }

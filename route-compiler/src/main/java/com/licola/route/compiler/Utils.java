@@ -1,18 +1,19 @@
 package com.licola.route.compiler;
 
-import com.google.auto.common.MoreElements;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
+import javax.tools.Diagnostic.Kind;
 
 /**
  * Created by LiCola on 2018/6/7.
  */
 public class Utils {
 
-  public static String checkAndUpperFirstChar(String input) {
+  static String checkAndUpperFirstChar(String input) {
     char[] chars = input.toCharArray();
     char first = chars[0];
     if (Character.isJavaIdentifierStart(first)) {
@@ -30,14 +31,31 @@ public class Utils {
     return new String(chars).intern();
   }
 
-  public static PackageElement getPackageElement(Element elementItem) {
-    return MoreElements
-        .asPackage(MoreElements.asType(elementItem).getEnclosingElement());
+  static void error(Messager messager, String msg, Object... args) {
+    if (args != null && args.length > 0) {
+      msg = String.format(Locale.CHINA, msg, args);
+    }
+    messager.printMessage(Kind.ERROR, msg);
+  }
+
+  static void error(Messager messager, Element element, String msg, Object... args) {
+    if (args != null && args.length > 0) {
+      msg = String.format(Locale.CHINA, msg, args);
+    }
+    messager.printMessage(Kind.ERROR, msg, element);
+  }
+
+  static void error(Messager messager, Element element, AnnotationMirror annotation,
+      String msg, Object... args) {
+    if (args != null && args.length > 0) {
+      msg = String.format(Locale.CHINA, msg, args);
+    }
+    messager.printMessage(Kind.ERROR, msg, element, annotation);
   }
 
   private static final String DATE_FORMAT_LOG_FILE = "yyyy/MM/dd HH:mm:ss";
 
-  public static String getNowTime() {
+  static String getNowTime() {
     return new SimpleDateFormat(DATE_FORMAT_LOG_FILE,
         Locale.CHINA).format(new Date());
   }
