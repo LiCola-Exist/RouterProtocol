@@ -40,7 +40,6 @@ import javax.lang.model.element.Modifier;
 
 public class ProcessorRoute {
 
-
   private Set<? extends Element> elements;
   private String packName;
   private String className;
@@ -77,12 +76,12 @@ public class ProcessorRoute {
 
     //定义内部Root类
     TypeSpec.Builder classInnerRoute = TypeSpec.classBuilder(ROUTE_CLASS_INNER_ROUTE)
-        .addModifiers(Modifier.PUBLIC,Modifier.STATIC)
+        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
         .addSuperinterface(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_ROOT));
 
     //定义内部Api类
     TypeSpec.Builder classInnerApi = TypeSpec.classBuilder(ROUTE_CLASS_INNER_API)
-        .addModifiers(Modifier.PUBLIC,Modifier.STATIC);
+        .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
     //定义Def注释
     AnnotationSpec.Builder annotationBuilder =
@@ -159,8 +158,12 @@ public class ProcessorRoute {
 
     classSpecBuild.addJavadoc("Created by @$L on $L \n", Route.class.getSimpleName(),
         Utils.getNowTime())
-        .addJavadoc("路由的协议类\n")
-        .addJavadoc("功能：约定Activity类与特定值的直接对应关系\n");
+        .addJavadoc("自动生成的路由类 \n")
+        .addJavadoc("功能\n")
+        .addJavadoc("1：生成模块名和各@Route注解目标的静态常量\n")
+        .addJavadoc("2：生成内部类Route收集路由信息\n")
+        .addJavadoc("3：生成内部类Api提供模块内跳转并提供注解辅助输入\n")
+    ;
 
     return classSpecBuild.build();
   }
@@ -189,7 +192,8 @@ public class ProcessorRoute {
         .addStatement(
             ROUTE_METHOD_LOAD_PARAMETER + ".put($T.makePath($L,$L),$T.create($L.class,$L,$L))",
             RoutePath.class, moduleName, elementName,
-            RouteMeta.class, MoreElements.asType(element).getQualifiedName().toString(), elementName,
+            RouteMeta.class, MoreElements.asType(element).getQualifiedName().toString(),
+            elementName,
             moduleName);
   }
 

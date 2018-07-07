@@ -8,11 +8,10 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.licola.route.RouteModule;
 import com.licola.route.annotation.Route;
 
-@Route()
-public class ModuleActivity extends AppCompatActivity {
+@Route(name = "register")
+public class RegisterActivity extends AppCompatActivity {
 
   @BindView(R2.id.tv_hint)
   TextView tvHint;
@@ -20,9 +19,9 @@ public class ModuleActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_module);
+    setContentView(R.layout.activity_register);
     ButterKnife.bind(this);
-    tvHint.setText("this module activity");
+    tvHint.setText("this register activity");
 
   }
 

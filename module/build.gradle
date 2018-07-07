@@ -15,11 +15,11 @@ buildscript {
 
 
 android {
-    compileSdkVersion 27
 
+    compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 27
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -28,7 +28,7 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = [ moduleName : project.getName() ]
+                arguments = [ moduleName : "user" ]//输入该模块名称 如user用户模块
             }
         }
     }

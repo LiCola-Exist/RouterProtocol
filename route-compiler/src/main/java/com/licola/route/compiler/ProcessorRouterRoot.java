@@ -64,8 +64,6 @@ public class ProcessorRouterRoot extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations,
       final RoundEnvironment roundEnvironment) {
 
-
-
     final Set<? extends Element> elements = roundEnvironment
         .getElementsAnnotatedWith(Route.class);
 

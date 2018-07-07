@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import com.licola.llogger.LLogger;
 import com.licola.route.RouteApp;
-import com.licola.route.RouteModule;
+import com.licola.route.RouteUser;
 import com.licola.route.annotation.Route;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.annotation.RoutePath;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationInterceptorClick(View view) {
     RouteApi api = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())//注入app模块的路由
-        .addRouteRoots(new RouteModule.Route())//注入module模块的路由
+        .addRouteRoots(new RouteUser.Route())//注入module模块的路由
         .addInterceptors(new Interceptor() {//注入拦截器
           @Override
           public RouteResponse intercept(RouteApi route, RouteResponse response) {
@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
             //模仿需要特殊模块拦截（比如需要登录模块）
             if (RouteApp.NAME.equals(response.getModule()) && RouteApp.SecondActivity
                 .equals(response.getTarget())) {
-              LLogger.d("强制导航到其他模块（如登录模块）");
+              LLogger.d("强制导航到其他模块（如用户模块注册页面）");
               return RouteResponse
-                  .notifyTarget(response, RouteModule.NAME, RouteModule.ModuleActivity);
+                  .notifyTarget(response, RouteUser.NAME, RouteUser.RegisterActivity);
             }
             return response;
           }

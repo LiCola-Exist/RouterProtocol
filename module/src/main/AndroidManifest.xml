@@ -3,7 +3,7 @@
   package="com.licola.model.module">
 
   <application>
-    <activity android:name=".ModuleActivity"></activity>
+    <activity android:name=".RegisterActivity"></activity>
   </application>
 
 </manifest>
