@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by LiCola on 2018/7/5.
  */
-public interface RouteProtocol {
+public interface RouteRoot {
 
   void load(Map<String, RouteMeta> map);
 }

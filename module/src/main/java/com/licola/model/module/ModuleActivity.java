@@ -8,9 +8,10 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.licola.route.RouteModule;
 import com.licola.route.annotation.Route;
 
-@Route
+@Route()
 public class ModuleActivity extends AppCompatActivity {
 
   @BindView(R2.id.tv_hint)

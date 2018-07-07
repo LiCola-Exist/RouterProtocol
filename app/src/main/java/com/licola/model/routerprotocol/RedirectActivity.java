@@ -4,7 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import com.licola.route.annotation.Route;
 
-@Route
+@Route(name = "login")
 public class RedirectActivity extends AppCompatActivity {
 
   @Override

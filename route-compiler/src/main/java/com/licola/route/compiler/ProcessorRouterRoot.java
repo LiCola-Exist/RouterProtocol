@@ -3,7 +3,6 @@ package com.licola.route.compiler;
 import static com.licola.route.compiler.Constants.KEY_MODULE_NAME;
 import static com.licola.route.compiler.Constants.PACKAGE_BASE;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_PREFIX;
-import static com.licola.route.compiler.Constants.ROUTE_CLASS_PROTOCOL_PREFIX;
 
 import com.google.auto.service.AutoService;
 import com.licola.route.annotation.Route;
@@ -11,9 +10,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -67,7 +64,7 @@ public class ProcessorRouterRoot extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations,
       final RoundEnvironment roundEnvironment) {
 
-    List<OutWriteCommand> commands = new ArrayList<>();
+
 
     final Set<? extends Element> elements = roundEnvironment
         .getElementsAnnotatedWith(Route.class);
@@ -77,14 +74,13 @@ public class ProcessorRouterRoot extends AbstractProcessor {
     }
 
     String noduleUpName = Utils.checkAndUpperFirstChar(moduleName);
-    final String protocolName = ROUTE_CLASS_PROTOCOL_PREFIX + noduleUpName;
-    final String routeName = ROUTE_CLASS_PREFIX + noduleUpName;
-    commands.add(new OutWriteCommand() {
+    final String className = ROUTE_CLASS_PREFIX + noduleUpName;
+
+    OutWriteCommand writeCommand=new OutWriteCommand() {
       @Override
       public void execute() throws IOException {
-
-        TypeSpec typeSpec = ProcessorRouteProtocol
-            .build(elements,protocolName,moduleName)
+        TypeSpec typeSpec = ProcessorRoute
+            .build(elements,PACKAGE_BASE,className,moduleName)
             .process();
 
         if (typeSpec == null) {
@@ -94,29 +90,10 @@ public class ProcessorRouterRoot extends AbstractProcessor {
         JavaFile javaFile = JavaFile.builder(PACKAGE_BASE, typeSpec).build();
         javaFile.writeTo(filer);
       }
-    });
-
-    commands.add(new OutWriteCommand() {
-      @Override
-      public void execute() throws IOException {
-
-        TypeSpec typeSpec = ProcessorRoute.build(routeName,protocolName)
-            .process();
-
-        if (typeSpec == null) {
-          return;
-        }
-
-        JavaFile javaFile = JavaFile.builder(PACKAGE_BASE, typeSpec).build();
-        javaFile.writeTo(filer);
-      }
-    });
+    };
 
     try {
-      //依次生成代码
-      for (OutWriteCommand item : commands) {
-        item.execute();
-      }
+      writeCommand.execute();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

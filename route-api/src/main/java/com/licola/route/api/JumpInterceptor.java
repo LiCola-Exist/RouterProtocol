@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import com.licola.route.annotation.RouteMeta;
+import com.licola.route.annotation.RoutePath;
 import java.util.Map;
 
 /**
@@ -20,13 +21,14 @@ public class JumpInterceptor implements Interceptor {
     }
 
     String target = response.getTarget();
-    RouteMeta routeMeta = routeMap.get(target);
-    if (routeMeta == null) {
+    String module = response.getModule();
+    RouteMeta meta = routeMap.get(RoutePath.makePath(module, target));
+    if (meta == null) {
       return RouteResponse.notifyFailed(response);
     }
 
     Application application = route.getApplication();
-    Class<?> metaTarget = routeMeta.getTarget();
+    Class<?> metaTarget = meta.getTarget();
     Intent intent = new Intent(application, metaTarget);
     if (isEmptyResolveIntent(application, intent)) {
       return RouteResponse.notifyFailed(response);
@@ -35,13 +37,13 @@ public class JumpInterceptor implements Interceptor {
 
     if (response.getCode() == RouteCode.CODE_REDIRECT) {
       return RouteResponse
-          .notifySuccessByRedirect(response, metaTarget, target, routeMeta.getModule());
+          .notifySuccessByRedirect(response, meta);
     }
 
-    return RouteResponse.notifySuccess(response, metaTarget, target, routeMeta.getModule());
+    return RouteResponse.notifySuccess(response, meta);
   }
 
-  public static boolean isEmptyResolveIntent(Context context, Intent intent) {
+  private static boolean isEmptyResolveIntent(Context context, Intent intent) {
     if (intent == null || context == null) {
       return true;
     }

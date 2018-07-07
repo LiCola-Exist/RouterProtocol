@@ -1,13 +1,28 @@
 package com.licola.route.api;
 
+import com.licola.route.annotation.RouteMeta;
+
 /**
  * Created by LiCola on 2018/7/5.
  */
 public class RouteResponse {
 
-  public static RouteResponse buildProcess(String target) {
+  public static RouteResponse buildProcess(String module, String target) {
     RouteResponse routeResponse = new RouteResponse();
     routeResponse.code = RouteCode.CODE_PROCESS;
+    routeResponse.module = module;
+    routeResponse.target = target;
+    return routeResponse;
+  }
+
+  public static RouteResponse notifyTarget(RouteResponse routeResponse, String target) {
+    return notifyTarget(routeResponse, routeResponse.getModule(), target);
+  }
+
+  public static RouteResponse notifyTarget(RouteResponse routeResponse, String module,
+      String target) {
+    routeResponse.code = RouteCode.CODE_REDIRECT;
+    routeResponse.module = module;
     routeResponse.target = target;
     return routeResponse;
   }
@@ -17,44 +32,29 @@ public class RouteResponse {
     return routeResponse;
   }
 
-  public static RouteResponse notifySuccess(RouteResponse routeResponse, Class<?> targetClass,
-      String target, String module) {
+  public static RouteResponse notifySuccess(RouteResponse routeResponse, RouteMeta routeMeta) {
     routeResponse.code = RouteCode.CODE_SUCCESS;
-    routeResponse.targetClass = targetClass;
-    routeResponse.target = target;
-    routeResponse.module = module;
+    routeResponse.routeMeta = routeMeta;
     return routeResponse;
   }
 
-  public static RouteResponse notifySuccessByRedirect(RouteResponse routeResponse, Class<?> targetClass,
-      String target, String module) {
+  public static RouteResponse notifySuccessByRedirect(RouteResponse routeResponse,
+      RouteMeta routeMeta) {
     routeResponse.code = RouteCode.CODE_REDIRECT;
-    routeResponse.targetClass = targetClass;
-    routeResponse.target = target;
-    routeResponse.module = module;
+    routeResponse.routeMeta = routeMeta;
     return routeResponse;
   }
 
-  public static RouteResponse notifyTarget(RouteResponse routeResponse, String target) {
-    routeResponse.code = RouteCode.CODE_REDIRECT;
-    routeResponse.target = target;
-    return routeResponse;
-  }
 
-  private Class<?> targetClass;
+  private RouteMeta routeMeta;
   private String target;
   private String module;
   @RouteCode.Code
   private int code;
 
-
   @RouteCode.Code
   public int getCode() {
     return code;
-  }
-
-  public Class<?> getTargetClass() {
-    return targetClass;
   }
 
   public String getTarget() {
@@ -65,10 +65,14 @@ public class RouteResponse {
     return module;
   }
 
+  public RouteMeta getRouteMeta() {
+    return routeMeta;
+  }
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("RouteResponse{");
-    sb.append("targetClass=").append(targetClass);
+    sb.append("routeMeta=").append(routeMeta);
     sb.append(", target='").append(target).append('\'');
     sb.append(", module='").append(module).append('\'');
     sb.append(", code=").append(code);

@@ -18,6 +18,14 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:text="navigation-simple" />
+
+  <Button
+    android:onClick="onNavigationWithApi"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="navigation-with-module" />
+
   <Button
     android:onClick="onNavigationInterceptorClick"
     android:layout_width="match_parent"
@@ -25,16 +33,11 @@
     android:layout_marginTop="16dp"
     android:text="navigation-interceptor" />
   <Button
-    android:onClick="onNavigationInterceptorArgClick"
+    android:onClick="onNavigationApiInterceptorClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:text="navigation-interceptor" />
-  <Button
-    android:onClick="onNavigationModuleClick"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="navigation-module" />
+
 
 </LinearLayout>
