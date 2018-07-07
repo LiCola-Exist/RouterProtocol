@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Created by LiCola on 2018/7/5.
+ * 路由状态码 参考HTTP状态码理解
+ * 用于表示路由导航响应结果
  */
 public class RouteCode {
 

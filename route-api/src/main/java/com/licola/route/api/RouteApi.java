@@ -14,9 +14,11 @@ import java.util.Map;
  */
 public class RouteApi {
 
+  @NonNull
   private Application application;
   @NonNull
   private Map<String, RouteMeta> routeMap;
+  @NonNull
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
@@ -24,12 +26,16 @@ public class RouteApi {
     this.application = builder.application;
     this.interceptors = Collections.unmodifiableList(builder.interceptors);
     this.routeInterceptors = Collections.unmodifiableList(builder.routeInterceptors);
+    this.routeMap = Collections.unmodifiableMap(loadRoute(builder.routeRoots));
+  }
 
+  @NonNull
+  private HashMap<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
     HashMap<String, RouteMeta> map = new HashMap<>();
-    for (RouteRoot routeRoot : builder.routeRoots) {
+    for (RouteRoot routeRoot : routeRoots) {
       routeRoot.load(map);
     }
-    this.routeMap = Collections.unmodifiableMap(map);
+    return map;
   }
 
   @RouteCode.Code
@@ -40,12 +46,13 @@ public class RouteApi {
   @RouteCode.Code
   public int navigation(String module, String target, Interceptor interceptor) {
 
+    //构造最开始的路由响应
     RouteResponse response = RouteResponse.buildProcess(module, target);
 
     //随方法注入的拦截器 优先
     if (interceptor != null) {
       response = interceptor.intercept(RouteApi.this, response);
-      if (!checkContinueDelivery(response)) {
+      if (checkBreakDelivery(response)) {
         return response.getCode();
       }
     }
@@ -53,11 +60,12 @@ public class RouteApi {
     //依次遍历拦截器
     for (Interceptor item : interceptors) {
       response = item.intercept(RouteApi.this, response);
-      if (!checkContinueDelivery(response)) {
+      if (checkBreakDelivery(response)) {
         return response.getCode();
       }
     }
 
+    //依次遍历路由拦截器
     if (!routeInterceptors.isEmpty()) {
       for (RouteInterceptor routeInterceptor : routeInterceptors) {
         if (!routeInterceptor.intercept(response.getRouteMeta())) {
@@ -69,8 +77,13 @@ public class RouteApi {
     return response.getCode();
   }
 
-  private static boolean checkContinueDelivery(RouteResponse response) {
-    return response.getCode() != RouteCode.CODE_FAILED;
+  /**
+   * 判断路由响应能够继续传递
+   * @param response 路由响应
+   * @return true：继续传递 false：当前响应无法继续传递
+   */
+  private static boolean checkBreakDelivery(RouteResponse response) {
+    return response.getCode() == RouteCode.CODE_FAILED;
   }
 
   @NonNull
@@ -78,6 +91,7 @@ public class RouteApi {
     return routeMap;
   }
 
+  @NonNull
   public Application getApplication() {
     return application;
   }
@@ -90,6 +104,9 @@ public class RouteApi {
     List<RouteRoot> routeRoots = new ArrayList<>();
 
     public Builder(Application application) {
+      if (application == null) {
+        throw new IllegalArgumentException("application == null");
+      }
       this.application = application;
     }
 
@@ -118,6 +135,7 @@ public class RouteApi {
     }
 
     public RouteApi build() {
+      //添加最后的跳转拦截器
       this.interceptors.add(new JumpInterceptor());
 
       if (routeRoots.isEmpty()) {
