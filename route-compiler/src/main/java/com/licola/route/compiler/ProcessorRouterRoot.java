@@ -43,7 +43,6 @@ public class ProcessorRouterRoot extends AbstractProcessor {
     super.init(processingEnvironment);
     filer = processingEnvironment.getFiler();
     messager = processingEnvironment.getMessager();
-
     moduleName = processingEnvironment.getOptions().get(KEY_MODULE_NAME);
   }
 
@@ -65,7 +64,6 @@ public class ProcessorRouterRoot extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations,
       final RoundEnvironment roundEnvironment) {
-
     if (moduleName == null) {
       Utils.error(messager, "请配置moduleName模块名称");
       throw new IllegalArgumentException("请配置moduleName模块名称 项目build.gradle android.defaultConfig \n"

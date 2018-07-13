@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         .build();
     //下面两行代码效果一致
 //    routeApi.navigation("app", "second");//字面量导航
-    routeApi.navigation(RouteApp.NAME, RouteApp.SecondActivity);//常量导航
+    routeApi.navigation(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY);//常量导航
   }
 
   public void onNavigationWithApi(View view) {
@@ -43,7 +43,15 @@ public class MainActivity extends AppCompatActivity {
 
     RouteApp.Api api = new RouteApp.Api(routeApi);
 //    api.navigation("second");//普通字面量
-    api.navigation(RouteApp.SecondActivity);//参数注解会提示输入规则 must be one of
+    api.navigation(RouteApp.SECOND_ACTIVITY);//参数注解会提示输入规则 must be one of
+  }
+
+  public void onNavigationThird(View view) {
+    RouteApi routeApi = new Builder(getApplication())
+        .addRouteRoots(new MyRoute.Route())
+        .build();
+
+    routeApi.navigation(MyRoute.MODULE_NAME, MyRoute.THIRD_ACTIVITY);
   }
 
   public void onNavigationInterceptorClick(View view) {
@@ -56,11 +64,11 @@ public class MainActivity extends AppCompatActivity {
             LLogger.d("拦截器 navigation开始时调用 可以重定向导航模块和目标");
 
             //模仿需要特殊模块拦截（比如需要登录模块）
-            if (RouteApp.NAME.equals(response.getModule()) && RouteApp.SecondActivity
+            if (RouteApp.MODULE_NAME.equals(response.getModule()) && RouteApp.SECOND_ACTIVITY
                 .equals(response.getTarget())) {
               LLogger.d("强制导航到其他模块（如用户模块注册页面）");
               return RouteResponse
-                  .notifyTarget(response, RouteUser.NAME, RouteUser.RegisterActivity);
+                  .notifyTarget(response, RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY);
             }
             return response;
           }
@@ -69,15 +77,14 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public boolean intercept(RouteMeta meta) {
             LLogger.d("成功导航之后调用 可以记录页面跳转");
-            LLogger
-                .d("页面跳转到 模块:" + meta.getModule() + " 名称:" + meta.getName() + " 路径:" + RoutePath
-                    .makePath(meta.getModule(), meta.getName()));
+            LLogger.d("页面跳转到 模块:" + meta.getModule() + " 名称:" + meta.getName() + " 路径:" + RoutePath
+                .makePath(meta.getModule(), meta.getName()));
             return true;
           }
         })
         .build();
 
-    @RouteCode.Code int code = api.navigation(RouteApp.NAME, RouteApp.SecondActivity);
+    @RouteCode.Code int code = api.navigation(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY);
     switch (code) {
       case RouteCode.CODE_FAILED:
         LLogger.d("导航失败");
@@ -100,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
         .build();
 
     RouteApp.Api api = new RouteApp.Api(routeApi);
-    api.navigation(RouteApp.SecondActivity, new Interceptor() {
+    api.navigation(RouteApp.SECOND_ACTIVITY, new Interceptor() {
       @Override
       public RouteResponse intercept(RouteApi route, RouteResponse response) {
         LLogger.d("随参数注入的拦截器被调用 优先级最高");
-        return RouteResponse.notifyTarget(response, RouteApp.RedirectActivity);
+        return RouteResponse.notifyTarget(response, RouteApp.REDIRECT_ACTIVITY);
       }
     });
 

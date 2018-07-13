@@ -32,7 +32,7 @@ public class Constants {
   static final String ROUTE_METHOD_NAVIGATION_PARAMETER_1 ="target";
   static final String ROUTE_METHOD_NAVIGATION_PARAMETER_2 ="interceptor";
 
-  static final String ROUTE_FIELD_ROUTE_NAME ="NAME";
+  static final String ROUTE_FIELD_ROUTE_MODULE_NAME ="MODULE_NAME";
 
 
 

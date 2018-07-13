@@ -9,7 +9,7 @@ import static com.licola.route.compiler.Constants.ROUTE_CLASS_INTERCEPTOR;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_API;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_CODE;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_ROOT;
-import static com.licola.route.compiler.Constants.ROUTE_FIELD_ROUTE_NAME;
+import static com.licola.route.compiler.Constants.ROUTE_FIELD_ROUTE_MODULE_NAME;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD_PARAMETER;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION;
@@ -69,7 +69,7 @@ public class ProcessorRoute {
 
     //定义类
     TypeSpec.Builder classSpecBuild = TypeSpec.classBuilder(className)
-        .addField(FieldSpec.builder(String.class, ROUTE_FIELD_ROUTE_NAME)
+        .addField(FieldSpec.builder(String.class, ROUTE_FIELD_ROUTE_MODULE_NAME)
             .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
             .initializer("$S", moduleName)
             .build());
@@ -96,7 +96,8 @@ public class ProcessorRoute {
         .returns(void.class);
 
     for (Element element : elements) {
-      addClassAndAnnotationField(element, ROUTE_FIELD_ROUTE_NAME, classSpecBuild, annotationBuilder,
+      addClassAndAnnotationField(element, ROUTE_FIELD_ROUTE_MODULE_NAME, classSpecBuild,
+          annotationBuilder,
           methodBuild);
     }
 
@@ -119,7 +120,7 @@ public class ProcessorRoute {
         .addParameter(ParameterSpec.builder(String.class, ROUTE_METHOD_NAVIGATION_PARAMETER_1)
             .addAnnotation(ClassName.get(packName, className, ROUTE_ANNOTATION_PROTOCOL))
             .build())
-        .addStatement("return api.navigation($L,$L)", ROUTE_FIELD_ROUTE_NAME,
+        .addStatement("return api.navigation($L,$L)", ROUTE_FIELD_ROUTE_MODULE_NAME,
             ROUTE_METHOD_NAVIGATION_PARAMETER_1)
         .addAnnotation(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_CODE, ROUTE_ANNOTATION_CODE))
         .returns(int.class)
@@ -134,7 +135,7 @@ public class ProcessorRoute {
             ParameterSpec.builder(ClassName.get(PACKAGE_API, ROUTE_CLASS_INTERCEPTOR),
                 ROUTE_METHOD_NAVIGATION_PARAMETER_2)
                 .build())
-        .addStatement("return api.navigation($L,$L,$L)", ROUTE_FIELD_ROUTE_NAME,
+        .addStatement("return api.navigation($L,$L,$L)", ROUTE_FIELD_ROUTE_MODULE_NAME,
             ROUTE_METHOD_NAVIGATION_PARAMETER_1, ROUTE_METHOD_NAVIGATION_PARAMETER_2)
         .addAnnotation(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_CODE, ROUTE_ANNOTATION_CODE))
         .returns(int.class)
@@ -172,6 +173,7 @@ public class ProcessorRoute {
       Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
     String elementName = element.getSimpleName().toString();
+    elementName = elementName.replace("Activity", "_Activity").toUpperCase();
     String name = element.getAnnotation(Route.class).name();
 
     if (CheckUtils.isEmpty(name)) {
