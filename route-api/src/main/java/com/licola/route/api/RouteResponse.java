@@ -45,7 +45,6 @@ public class RouteResponse {
     return routeResponse;
   }
 
-
   private RouteMeta routeMeta;
   private String target;
   private String module;

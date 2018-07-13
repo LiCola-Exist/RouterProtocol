@@ -135,7 +135,7 @@ public class RouteApi {
     }
 
     public RouteApi build() {
-      //添加最后的跳转拦截器
+      //添加实现跳转功能的拦截器
       this.interceptors.add(new JumpInterceptor());
 
       if (routeRoots.isEmpty()) {

@@ -34,6 +34,7 @@ public class JumpInterceptor implements Interceptor {
     if (isEmptyResolveIntent(application, intent)) {
       return RouteResponse.notifyFailed(response);
     }
+
     application.startActivity(intent);
 
     if (response.getCode() == RouteCode.CODE_REDIRECT) {
@@ -44,11 +45,11 @@ public class JumpInterceptor implements Interceptor {
     return RouteResponse.notifySuccess(response, meta);
   }
 
+  /**
+   * @return 只有当检查出能够接受intent的对象不为空 返回true
+   */
   private static boolean isEmptyResolveIntent(Context context, Intent intent) {
-    if (intent == null || context == null) {
-      return true;
-    }
-    //只有当检查出能够接受intent的对象不为空 返回true
-    return intent.resolveActivity(context.getPackageManager()) == null;
+    return intent == null || context == null
+        || intent.resolveActivity(context.getPackageManager()) == null;
   }
 }

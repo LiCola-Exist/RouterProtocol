@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
           public RouteResponse intercept(RouteApi route, RouteResponse response) {
             LLogger.d("拦截器 navigation开始时调用 可以重定向导航模块和目标");
 
-            //模仿需要特殊模块拦截（比如需要登录模块）
+            //模仿特定模块拦截（比如需要登录模块）
             if (RouteApp.MODULE_NAME.equals(response.getModule()) && RouteApp.SECOND_ACTIVITY
                 .equals(response.getTarget())) {
               LLogger.d("强制导航到其他模块（如用户模块注册页面）");
