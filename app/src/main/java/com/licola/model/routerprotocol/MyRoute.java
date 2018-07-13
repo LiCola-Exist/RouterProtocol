@@ -9,8 +9,9 @@ import java.util.Map;
  * @author LiCola
  * @date 2018/7/13
  * 自定义的路由类
- * 用于解决引入第三方库模块，无法直接修改源码打上注解（不能自动生成路由类）
- * 手动编写路由信息，实现引入第三方库
+ * 用于解决引入第三方库模块，无法直接修改源码打上注解（即：不能自动生成路由类）
+ * 手动编写路由信息，实现注入第三方库到路由
+ * 代码参考：
  * @see com.licola.route.RouteApp
  */
 public class MyRoute {

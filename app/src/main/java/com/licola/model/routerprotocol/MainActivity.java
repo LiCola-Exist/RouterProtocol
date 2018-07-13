@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
   }
 
+  /**
+   * 简单的路由使用
+   */
   public void onNavigationSimpleClick(View view) {
     RouteApi routeApi = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())
@@ -36,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     routeApi.navigation(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY);//常量导航
   }
 
+  /**
+   * 使用自动生成的Api 友好使用 带注解提示的 路由使用
+   */
   public void onNavigationWithApi(View view) {
     RouteApi routeApi = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())
@@ -46,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
     api.navigation(RouteApp.SECOND_ACTIVITY);//参数注解会提示输入规则 must be one of
   }
 
+  /**
+   * 示例注入第三方库的 路由使用
+   */
   public void onNavigationThird(View view) {
     RouteApi routeApi = new Builder(getApplication())
         .addRouteRoots(new MyRoute.Route())
@@ -54,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     routeApi.navigation(MyRoute.MODULE_NAME, MyRoute.THIRD_ACTIVITY);
   }
 
+  /**
+   * 拦截器的使用示例
+   */
   public void onNavigationInterceptorClick(View view) {
     RouteApi api = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())//注入app模块的路由
@@ -63,10 +75,11 @@ public class MainActivity extends AppCompatActivity {
           public RouteResponse intercept(RouteApi route, RouteResponse response) {
             LLogger.d("拦截器 navigation开始时调用 可以重定向导航模块和目标");
 
-            //模仿特定模块拦截（比如需要登录模块）
-            if (RouteApp.MODULE_NAME.equals(response.getModule()) && RouteApp.SECOND_ACTIVITY
-                .equals(response.getTarget())) {
-              LLogger.d("强制导航到其他模块（如用户模块注册页面）");
+            //模仿特定模块拦截（比如需要登录的模块）
+            String module = response.getModule();
+            String target = response.getTarget();
+            if (RouteApp.MODULE_NAME.equals(module) && RouteApp.SECOND_ACTIVITY.equals(target)) {
+              LLogger.d("重定向导航到其他模块（如用户模块注册页面）");
               return RouteResponse
                   .notifyTarget(response, RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY);
             }
@@ -79,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
             LLogger.d("成功导航之后调用 可以记录页面跳转");
             LLogger.d("页面跳转到 模块:" + meta.getModule() + " 名称:" + meta.getName() + " 路径:" + RoutePath
                 .makePath(meta.getModule(), meta.getName()));
-            return true;
+            //不拦截信息路流 继续转递下去
+            return false;
           }
         })
         .build();
@@ -101,16 +115,26 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * 自动生成Api的拦截器的使用示例
+   */
   public void onNavigationApiInterceptorClick(View view) {
     RouteApi routeApi = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())
+        .addInterceptors(new Interceptor() {
+          @Override
+          public RouteResponse intercept(RouteApi route, RouteResponse response) {
+            LLogger.d("构造注入的拦截器 优先级较低");
+            return response;
+          }
+        })
         .build();
 
     RouteApp.Api api = new RouteApp.Api(routeApi);
     api.navigation(RouteApp.SECOND_ACTIVITY, new Interceptor() {
       @Override
       public RouteResponse intercept(RouteApi route, RouteResponse response) {
-        LLogger.d("随参数注入的拦截器被调用 优先级最高");
+        LLogger.d("随参数注入的拦截器 优先级最高");
         return RouteResponse.notifyTarget(response, RouteApp.REDIRECT_ACTIVITY);
       }
     });

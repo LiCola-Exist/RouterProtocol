@@ -68,7 +68,7 @@ public class RouteApi {
     //依次遍历路由拦截器
     if (!routeInterceptors.isEmpty()) {
       for (RouteInterceptor routeInterceptor : routeInterceptors) {
-        if (!routeInterceptor.intercept(response.getRouteMeta())) {
+        if (routeInterceptor.intercept(response.getRouteMeta())) {
           break;
         }
       }

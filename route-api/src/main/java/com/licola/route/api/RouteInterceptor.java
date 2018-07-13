@@ -8,5 +8,10 @@ import com.licola.route.annotation.RouteMeta;
  */
 public interface RouteInterceptor {
 
-  boolean intercept(RouteMeta meta);
+  /**
+   *
+   * @param meta 路由信息
+   * @return true：拦截信息流 false：不拦截信息流，继续调用后续拦截器
+   */
+  boolean intercept(final RouteMeta meta);
 }
