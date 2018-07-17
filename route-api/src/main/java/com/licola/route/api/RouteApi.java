@@ -49,26 +49,24 @@ public class RouteApi {
     //构造最开始的路由响应
     RouteResponse response = RouteResponse.buildProcess(module, target);
 
-    //随方法注入的拦截器 优先
+    List<Interceptor> interceptorAll = new ArrayList<>();
     if (interceptor != null) {
-      response = interceptor.intercept(RouteApi.this, response);
-      if (checkBreakDelivery(response)) {
-        return response.getCode();
-      }
+      interceptorAll.add(interceptor);
     }
+    interceptorAll.addAll(interceptors);
 
     //依次遍历拦截器
-    for (Interceptor item : interceptors) {
-      response = item.intercept(RouteApi.this, response);
-      if (checkBreakDelivery(response)) {
-        return response.getCode();
+    for (Interceptor item : interceptorAll) {
+      int code = item.intercept(RouteApi.this, response);
+      if (checkBreakDelivery(code)) {
+        break;
       }
     }
 
     //依次遍历路由拦截器
     if (!routeInterceptors.isEmpty()) {
       for (RouteInterceptor routeInterceptor : routeInterceptors) {
-        if (routeInterceptor.intercept(response.getRouteMeta())) {
+        if (routeInterceptor.intercept(response)) {
           break;
         }
       }
@@ -79,11 +77,11 @@ public class RouteApi {
 
   /**
    * 判断路由响应能够继续传递
-   * @param response 路由响应
+   *
    * @return true：继续传递 false：当前响应无法继续传递
    */
-  private static boolean checkBreakDelivery(RouteResponse response) {
-    return response.getCode() == RouteCode.CODE_FAILED;
+  private static boolean checkBreakDelivery(@RouteCode.Code int code) {
+    return code == RouteCode.CODE_FAILED || code == RouteCode.CODE_ERROR;
   }
 
   @NonNull

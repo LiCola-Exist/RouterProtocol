@@ -35,7 +35,12 @@ public class RouteCode {
    */
   public static final int CODE_FAILED = 404;
 
-  @IntDef({CODE_PROCESS, CODE_SUCCESS, CODE_REDIRECT, CODE_FAILED})
+  /**
+   * 请求错误 路由内部配置错误
+   */
+  public static final int CODE_ERROR = 500;
+
+  @IntDef({CODE_PROCESS, CODE_SUCCESS, CODE_REDIRECT, CODE_FAILED,CODE_ERROR})
   @Retention(RetentionPolicy.SOURCE)
   public @interface Code {
 

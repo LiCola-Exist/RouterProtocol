@@ -1,7 +1,9 @@
 package com.licola.model.routerprotocol;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import com.licola.llogger.LLogger;
 import com.licola.route.annotation.Route;
 
 @Route(name = "second")
@@ -11,5 +13,17 @@ public class SecondActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_second);
+
+    Intent intent = getIntent();
+    Bundle extras = intent.getExtras();
+    if (extras != null) {
+      LLogger.d("带参数的Intent");
+      for (String key : extras.keySet()) {
+        LLogger.d(key, extras.get(key));
+      }
+    } else {
+      LLogger.d("不带参数的Intent");
+    }
+
   }
 }
