@@ -29,6 +29,7 @@ public class JumpInterceptor implements Interceptor {
 
       if (intent == null) {
         intent = new Intent();
+        response.setIntent(intent);
       }
 
       if (routeMap.isEmpty()) {

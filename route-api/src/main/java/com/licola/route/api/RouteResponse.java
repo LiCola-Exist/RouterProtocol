@@ -87,6 +87,9 @@ public class RouteResponse {
     return intent;
   }
 
+  void setIntent(Intent intent){
+    this.intent=intent;
+  }
   public String getTarget() {
     return target;
   }
