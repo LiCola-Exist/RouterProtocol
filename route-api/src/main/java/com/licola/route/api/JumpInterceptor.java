@@ -24,7 +24,7 @@ public class JumpInterceptor implements Interceptor {
     RouteMeta meta;
     Intent intent = response.getIntent();
     if (isResolveIntent(application, intent)) {
-      meta = RouteMeta.create(null, "other", "other");
+      meta = RouteMeta.create(null, "external", "unknown");
     } else {
 
       if (intent == null) {
@@ -59,22 +59,6 @@ public class JumpInterceptor implements Interceptor {
     RouteResponse.notifySuccess(response, meta);
 
     return response.getCode();
-  }
-
-  public RouteMeta findMeta(Map<String, RouteMeta> routeMap, RouteResponse response) {
-    RouteMeta meta;
-    if (routeMap.isEmpty()) {
-      RouteResponse.notifyError(response, "路由配置错误 路由表为空");
-      meta = null;
-    } else {
-      String target = response.getTarget();
-      String module = response.getModule();
-      meta = routeMap.get(RoutePath.makePath(module, target));
-      if (meta == null) {
-        RouteResponse.notifyFailed(response, "没有发现请求目标");
-      }
-    }
-    return meta;
   }
 
   /**

@@ -133,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
         LLogger.d("路由内部错误");
         break;
     }
+
+    LLogger.d("是否严格意义上的成功跳转：" + RouteApi.checkNavigation(code));
+    LLogger.d("是否发生跳转：" + RouteApi.checkNavigationLoose(code));
   }
 
   /**

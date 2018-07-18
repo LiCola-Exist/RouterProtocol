@@ -1,6 +1,7 @@
 package com.licola.route.api;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 
@@ -87,7 +88,7 @@ public class RouteResponse {
     return intent;
   }
 
-  void setIntent(Intent intent){
+  void setIntent(@NonNull Intent intent){
     this.intent=intent;
   }
   public String getTarget() {

@@ -58,7 +58,7 @@ public class RouteApi {
     //依次遍历拦截器
     for (Interceptor item : interceptorAll) {
       int code = item.intercept(RouteApi.this, response);
-      if (checkBreakDelivery(code)) {
+      if (!checkDelivery(code)) {
         break;
       }
     }
@@ -80,8 +80,26 @@ public class RouteApi {
    *
    * @return true：继续传递 false：当前响应无法继续传递
    */
-  private static boolean checkBreakDelivery(@RouteCode.Code int code) {
-    return code == RouteCode.CODE_FAILED || code == RouteCode.CODE_ERROR;
+  private static boolean checkDelivery(@RouteCode.Code int code) {
+    return code == RouteCode.CODE_PROCESS || code == RouteCode.CODE_REDIRECT;
+  }
+
+  /**
+   * 检查是否成功跳转 严格的检查
+   *
+   * @return true：只有请求目标和导航目标一致 才认为成功 false：其他情况
+   */
+  public static boolean checkNavigation(@RouteCode.Code int code) {
+    return code == RouteCode.CODE_SUCCESS;
+  }
+
+  /**
+   * 检查是否跳转页面 宽松的检查 因为重定向也会导致页面跳转
+   *
+   * @return true：只要界面跳转就认为成功 false：其他情况
+   */
+  public static boolean checkNavigationLoose(@RouteCode.Code int code) {
+    return code == RouteCode.CODE_SUCCESS || code == RouteCode.CODE_REDIRECT;
   }
 
   @NonNull
