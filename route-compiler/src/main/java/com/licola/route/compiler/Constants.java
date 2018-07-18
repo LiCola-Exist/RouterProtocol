@@ -18,7 +18,7 @@ public class Constants {
   static final String ROUTE_CLASS_ROUTE_ROOT = "RouteRoot";
   static final String ROUTE_CLASS_INNER_ROUTE = "Route";
   static final String ROUTE_CLASS_INNER_API = "Api";
-  static final String ROUTE_CLASS_ROUTE_API = "RouteApi";
+  static final String ROUTE_CLASS_ROUTE_API = "Api";
   static final String ROUTE_CLASS_INTERCEPTOR = "Interceptor";
   static final String ROUTE_CLASS_ROUTE_CODE = "RouteCode";
 
@@ -29,12 +29,14 @@ public class Constants {
   static final String ROUTE_METHOD_LOAD ="load";
   static final String ROUTE_METHOD_LOAD_PARAMETER ="map";
   static final String ROUTE_METHOD_NAVIGATION ="navigation";
-  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_1 ="target";
-  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_2 ="interceptor";
+  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET ="target";
+  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR ="interceptor";
+  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY ="activity";
+  static final String ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE ="requestCode";
 
   static final String ROUTE_FIELD_ROUTE_MODULE_NAME ="MODULE_NAME";
 
-
+  static final String PATH_SEPARATOR="/";
 
 
 

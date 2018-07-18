@@ -1,20 +1,21 @@
 package com.licola.route.compiler;
 
 import static com.licola.route.compiler.Constants.PACKAGE_API;
-import static com.licola.route.compiler.Constants.ROUTE_ANNOTATION_CODE;
+import static com.licola.route.compiler.Constants.PATH_SEPARATOR;
 import static com.licola.route.compiler.Constants.ROUTE_ANNOTATION_PROTOCOL;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_API;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_ROUTE;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INTERCEPTOR;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_API;
-import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_CODE;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_ROOT;
 import static com.licola.route.compiler.Constants.ROUTE_FIELD_ROUTE_MODULE_NAME;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD_PARAMETER;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION;
-import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_1;
-import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_2;
+import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY;
+import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR;
+import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE;
+import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET;
 
 import com.google.auto.common.MoreElements;
 import com.licola.route.annotation.Route;
@@ -29,6 +30,8 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Element;
@@ -96,7 +99,7 @@ public class ProcessorRoute {
         .returns(void.class);
 
     for (Element element : elements) {
-      addClassAndAnnotationField(element, ROUTE_FIELD_ROUTE_MODULE_NAME, classSpecBuild,
+      addClassAndAnnotationField(moduleName, ROUTE_FIELD_ROUTE_MODULE_NAME, element, classSpecBuild,
           annotationBuilder,
           methodBuild);
     }
@@ -115,41 +118,15 @@ public class ProcessorRoute {
         .addJavadoc("作用于Source源文件的注释\n")
         .addJavadoc("用于代码检查和辅助输入\n");
 
-    MethodSpec methodSpec1 = MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterSpec.builder(String.class, ROUTE_METHOD_NAVIGATION_PARAMETER_1)
-            .addAnnotation(ClassName.get(packName, className, ROUTE_ANNOTATION_PROTOCOL))
-            .build())
-        .addStatement("return api.navigation($L,$L)", ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_1)
-        .addAnnotation(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_CODE, ROUTE_ANNOTATION_CODE))
-        .returns(int.class)
-        .build();
-
-    MethodSpec methodSpec2 = MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterSpec.builder(String.class, ROUTE_METHOD_NAVIGATION_PARAMETER_1)
-            .addAnnotation(ClassName.get(packName, className, ROUTE_ANNOTATION_PROTOCOL))
-            .build())
-        .addParameter(
-            ParameterSpec.builder(ClassName.get(PACKAGE_API, ROUTE_CLASS_INTERCEPTOR),
-                ROUTE_METHOD_NAVIGATION_PARAMETER_2)
-                .build())
-        .addStatement("return api.navigation($L,$L,$L)", ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_1, ROUTE_METHOD_NAVIGATION_PARAMETER_2)
-        .addAnnotation(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_CODE, ROUTE_ANNOTATION_CODE))
-        .returns(int.class)
-        .build();
-
-    classInnerApi
-        .addField(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_API), "api", Modifier.PRIVATE)
+    ClassName apiClassName = ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_API);
+    classInnerApi.addField(apiClassName, "api", Modifier.PRIVATE)
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_API), "api")
+            .addParameter(apiClassName, "api")
             .addStatement("this.$N = $N", "api", "api")
-            .build())
-        .addMethod(methodSpec1)
-        .addMethod(methodSpec2);
+            .build());
+
+    classInnerApi.addMethods(makeMehtods());
 
     classSpecBuild
         .addModifiers(Modifier.PUBLIC)
@@ -169,7 +146,8 @@ public class ProcessorRoute {
     return classSpecBuild.build();
   }
 
-  private void addClassAndAnnotationField(Element element, String moduleName,
+  private void addClassAndAnnotationField(String moduleNameValue, String moduleName,
+      Element element,
       Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
     String elementName = element.getSimpleName().toString();
@@ -192,12 +170,87 @@ public class ProcessorRoute {
     //方法中 添加表达式
     methodBuild
         .addStatement(
-            ROUTE_METHOD_LOAD_PARAMETER + ".put($T.makePath($L,$L),$T.create($L.class,$L,$L))",
-            RoutePath.class, moduleName, elementName,
+            ROUTE_METHOD_LOAD_PARAMETER + ".put(\"$L$L$L\",$T.create($L.class,$L,$L))",
+            moduleNameValue, PATH_SEPARATOR, name,
             RouteMeta.class, MoreElements.asType(element).getQualifiedName().toString(),
             elementName,
             moduleName);
   }
 
+  private List<MethodSpec> makeMehtods() {
+
+    ArrayList<MethodSpec> methodSpecs = new ArrayList<>();
+
+    ParameterSpec parameterTarget = ParameterSpec
+        .builder(String.class, ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET)
+        .addAnnotation(ClassName.get(packName, className, ROUTE_ANNOTATION_PROTOCOL))
+        .build();
+
+    ParameterSpec parameterInterceptor = ParameterSpec
+        .builder(ClassName.get(PACKAGE_API, ROUTE_CLASS_INTERCEPTOR),
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR)
+        .build();
+
+    ParameterSpec parameterActivity = ParameterSpec
+        .builder(ClassName.get("android.app", "Activity"),
+            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY)
+        .build();
+
+    ParameterSpec parameterRequestCode = ParameterSpec
+        .builder(int.class, ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE)
+        .build();
+
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterTarget)
+        .addStatement("api.navigation($T.makePath($L,$L))", RoutePath.class,
+            ROUTE_FIELD_ROUTE_MODULE_NAME,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET)
+        .returns(void.class)
+        .build());
+
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterTarget)
+        .addParameter(parameterInterceptor)
+        .addStatement("api.navigation($T.makePath($L,$L),$L)", RoutePath.class,
+            ROUTE_FIELD_ROUTE_MODULE_NAME,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR)
+        .returns(void.class)
+        .build());
+
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterTarget)
+        .addParameter(parameterActivity)
+        .addParameter(parameterRequestCode)
+        .addStatement("api.navigation($T.makePath($L,$L),$L,$L)", RoutePath.class,
+            ROUTE_FIELD_ROUTE_MODULE_NAME,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE
+        )
+        .returns(void.class)
+        .build());
+
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterTarget)
+        .addParameter(parameterActivity)
+        .addParameter(parameterRequestCode)
+        .addParameter(parameterInterceptor)
+        .addStatement("api.navigation($T.makePath($L,$L),$L,$L,$L)", RoutePath.class,
+            ROUTE_FIELD_ROUTE_MODULE_NAME,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
+        )
+        .returns(void.class)
+        .build());
+
+    return methodSpecs;
+  }
 
 }

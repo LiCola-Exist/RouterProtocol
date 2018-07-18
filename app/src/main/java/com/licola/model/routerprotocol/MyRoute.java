@@ -24,7 +24,7 @@ public class MyRoute {
 
     @Override
     public void load(Map<String, RouteMeta> map) {
-      map.put(RoutePath.makePath(MODULE_NAME, THIRD_ACTIVITY), RouteMeta
+      map.put("other/third", RouteMeta
           .create(com.licola.model.module.third.ThirdActivity.class, THIRD_ACTIVITY, MODULE_NAME));
     }
   }

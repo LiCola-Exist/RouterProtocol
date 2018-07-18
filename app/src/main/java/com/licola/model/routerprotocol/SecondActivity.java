@@ -9,6 +9,8 @@ import com.licola.route.annotation.Route;
 @Route(name = "second")
 public class SecondActivity extends AppCompatActivity {
 
+  private static final int RESULT_CODE=200;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -25,5 +27,6 @@ public class SecondActivity extends AppCompatActivity {
       LLogger.d("不带参数的Intent");
     }
 
+    setResult(RESULT_CODE);
   }
 }

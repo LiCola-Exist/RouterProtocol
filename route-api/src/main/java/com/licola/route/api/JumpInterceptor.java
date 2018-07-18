@@ -1,12 +1,10 @@
 package com.licola.route.api;
 
-import android.app.Application;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
-import com.licola.route.annotation.RoutePath;
-import com.licola.route.api.RouteCode.Code;
 import java.util.Map;
 
 /**
@@ -15,15 +13,16 @@ import java.util.Map;
  */
 public class JumpInterceptor implements Interceptor {
 
-  @Code
   @Override
-  public int intercept(RouteApi route, RouteResponse response) {
-    Application application = route.getApplication();
-    Map<String, RouteMeta> routeMap = route.getRouteMap();
+  public void intercept(Router router, RouteResponse response) {
+    Map<String, RouteMeta> routeMap = router.getRouteMap();
 
     RouteMeta meta;
     Intent intent = response.getIntent();
-    if (isResolveIntent(application, intent)) {
+    Context context = response.getContext();
+    int requestCode = response.getRequestCode();
+
+    if (isResolveIntent(context, intent)) {
       meta = RouteMeta.create(null, "external", "unknown");
     } else {
 
@@ -32,33 +31,35 @@ public class JumpInterceptor implements Interceptor {
         response.setIntent(intent);
       }
 
+      String path = response.getPath();
       if (routeMap.isEmpty()) {
         RouteResponse.notifyError(response, "路由配置错误 路由表为空");
         meta = null;
+      }
+      if (path == null || path.isEmpty()) {
+        meta = null;
+        RouteResponse.notifyFailed(response, "路由查表方式跳转 但是path路由为空 无法查表");
       } else {
-        String target = response.getTarget();
-        String module = response.getModule();
-        meta = routeMap.get(RoutePath.makePath(module, target));
+        meta = routeMap.get(path);
         if (meta == null) {
           RouteResponse.notifyFailed(response, "没有发现请求目标");
         }
       }
     }
 
-    if (meta == null) {
-      return response.getCode();
+    if (meta != null && meta.getTarget() != null) {
+      Class<?> target = meta.getTarget();
+      intent.setClass(context, target);
     }
 
-    Class<?> metaTarget = meta.getTarget();
-    if (metaTarget != null) {
-      intent.setClass(application, metaTarget);
+    if (requestCode != RouteResponse.INVALID_REQUEST_CODE && context instanceof Activity) {
+      ((Activity) context).startActivityForResult(intent, requestCode);
+    } else {
+      context.startActivity(intent);
     }
-
-    application.startActivity(intent);
 
     RouteResponse.notifySuccess(response, meta);
 
-    return response.getCode();
   }
 
   /**
@@ -67,4 +68,6 @@ public class JumpInterceptor implements Interceptor {
   private static boolean isResolveIntent(Context context, @Nullable Intent intent) {
     return intent != null && intent.resolveActivity(context.getPackageManager()) != null;
   }
+
+
 }

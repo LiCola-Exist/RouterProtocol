@@ -1,34 +1,25 @@
 package com.licola.route.api;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
+import java.util.List;
 
 /**
  * Created by LiCola on 2018/7/5.
  */
 public class RouteResponse {
 
-  public static RouteResponse buildProcess(String module, String target) {
-    RouteResponse response = new RouteResponse();
-    response.code = RouteCode.CODE_PROCESS;
-    response.module = module;
-    response.target = target;
-    response.msg = "请求中";
-    return response;
-  }
-
-  public static void notifyTarget(RouteResponse response, String target) {
-    notifyTarget(response, response.getModule(), target);
-  }
+  public static final int INVALID_REQUEST_CODE=-1;
 
   public static void notifyTarget(RouteResponse response, String module,
       String target) {
-    response.code = RouteCode.CODE_REDIRECT;
-    response.module = module;
-    response.target = target;
-    response.msg = "重定向";
+//    response.code = RouteCode.CODE_REDIRECT;
+//    response.module = module;
+//    response.target = target;
+//    response.msg = "重定向";
   }
 
   /**
@@ -63,14 +54,18 @@ public class RouteResponse {
   }
 
   public static void notifySuccess(RouteResponse response, RouteMeta routeMeta) {
-    response.code = response.getCode() == RouteCode.CODE_REDIRECT ? RouteCode.CODE_REDIRECT
-        : RouteCode.CODE_SUCCESS;
-    response.routeMeta = routeMeta;
-    response.msg = "请求成功";
+//    response.code = response.getCode() == RouteCode.CODE_REDIRECT ? RouteCode.CODE_REDIRECT
+//        : RouteCode.CODE_SUCCESS;
+//    response.routeMeta = routeMeta;
+//    response.msg = "请求成功";
   }
 
-  private String target;
-  private String module;
+  private Router router;
+  private List<Interceptor> interceptors;
+  private Context context;
+  private int requestCode=INVALID_REQUEST_CODE;
+
+  private String path;
   @Nullable
   private Intent intent;
 
@@ -80,48 +75,48 @@ public class RouteResponse {
 
   private RouteMeta routeMeta;
 
+  RouteResponse(Router router,Context context,int requestCode,List<Interceptor> interceptors, String path) {
+    this.router = router;
+    this.context=context;
+    this.requestCode=requestCode;
+    this.interceptors = interceptors;
+    this.path=path;
+    this.code=RouteCode.CODE_PROCESS;
+    this.msg="开始请求";
+  }
 
-  private RouteResponse() {
+  private int index=0;
+
+  public void onProcess() {
+
+    if (index<interceptors.size()){
+      interceptors.get(index++).intercept(router,this);
+    }else {
+
+    }
+  }
+
+  public Context getContext() {
+    return context;
+  }
+
+  public int getRequestCode() {
+    return requestCode;
+  }
+
+  public String getPath() {
+    return path;
   }
 
   Intent getIntent() {
     return intent;
   }
 
-  void setIntent(@NonNull Intent intent){
-    this.intent=intent;
-  }
-  public String getTarget() {
-    return target;
+  void setIntent(@NonNull Intent intent) {
+    this.intent = intent;
   }
 
-  public String getModule() {
-    return module;
-  }
+  public void onBreak() {
 
-  public RouteMeta getRouteMeta() {
-    return routeMeta;
-  }
-
-  @RouteCode.Code
-  public int getCode() {
-    return code;
-  }
-
-  public String getMsg() {
-    return msg;
-  }
-
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("RouteResponse{");
-    sb.append("target='").append(target).append('\'');
-    sb.append(", module='").append(module).append('\'');
-    sb.append(", intent=").append(intent);
-    sb.append(", code=").append(code);
-    sb.append(", msg='").append(msg).append('\'');
-    sb.append(", routeMeta=").append(routeMeta);
-    sb.append('}');
-    return sb.toString();
   }
 }

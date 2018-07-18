@@ -1,6 +1,8 @@
 package com.licola.route.api;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import com.licola.route.annotation.RouteMeta;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.Map;
 /**
  * Created by LiCola on 2018/7/5.
  */
-public class RouteApi {
+public class RouterApiImpl implements Router, Api {
 
   @NonNull
   private Application application;
@@ -22,7 +24,7 @@ public class RouteApi {
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
-  RouteApi(Builder builder) {
+  RouterApiImpl(Builder builder) {
     this.application = builder.application;
     this.interceptors = Collections.unmodifiableList(builder.interceptors);
     this.routeInterceptors = Collections.unmodifiableList(builder.routeInterceptors);
@@ -38,42 +40,39 @@ public class RouteApi {
     return map;
   }
 
-  @RouteCode.Code
-  public int navigation(String route, String target) {
-    return navigation(route, target, null);
+  @Override
+  public void navigation(String path) {
+    navigation(path, null, RouteResponse.INVALID_REQUEST_CODE, null);
   }
 
-  @RouteCode.Code
-  public int navigation(String module, String target, Interceptor interceptor) {
+  @Override
+  public void navigation(String path, Activity activity, int requestCode) {
+    navigation(path, activity, requestCode, null);
 
-    //构造最开始的路由响应
-    RouteResponse response = RouteResponse.buildProcess(module, target);
+  }
 
+  @Override
+  public void navigation(String path, Interceptor interceptor) {
+    navigation(path, null, RouteResponse.INVALID_REQUEST_CODE, interceptor);
+  }
+
+  @Override
+  public void navigation(String path, Activity activity, int requestCode, Interceptor interceptor) {
     List<Interceptor> interceptorAll = new ArrayList<>();
     if (interceptor != null) {
       interceptorAll.add(interceptor);
     }
     interceptorAll.addAll(interceptors);
 
-    //依次遍历拦截器
-    for (Interceptor item : interceptorAll) {
-      int code = item.intercept(RouteApi.this, response);
-      if (!checkDelivery(code)) {
-        break;
-      }
-    }
+    Context context = activity != null ? activity : application;
 
-    //依次遍历路由拦截器
-    if (!routeInterceptors.isEmpty()) {
-      for (RouteInterceptor routeInterceptor : routeInterceptors) {
-        if (routeInterceptor.intercept(response)) {
-          break;
-        }
-      }
-    }
+    //构造路由响应
+    RouteResponse response = new RouteResponse(this, context, requestCode, interceptorAll, path);
 
-    return response.getCode();
+    //开始
+    response.onProcess();
   }
+
 
   /**
    * 判断路由响应能够继续传递
@@ -103,14 +102,11 @@ public class RouteApi {
   }
 
   @NonNull
+  @Override
   public Map<String, RouteMeta> getRouteMap() {
     return routeMap;
   }
 
-  @NonNull
-  public Application getApplication() {
-    return application;
-  }
 
   public static final class Builder {
 
@@ -150,7 +146,7 @@ public class RouteApi {
       return this;
     }
 
-    public RouteApi build() {
+    public Api build() {
       //添加实现跳转功能的拦截器
       this.interceptors.add(new JumpInterceptor());
 
@@ -158,7 +154,7 @@ public class RouteApi {
         throw new IllegalArgumentException("routeRoots can not empty");
       }
 
-      return new RouteApi(this);
+      return new RouterApiImpl(this);
     }
   }
 }

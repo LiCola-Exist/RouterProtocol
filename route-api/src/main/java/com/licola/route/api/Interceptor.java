@@ -6,6 +6,5 @@ package com.licola.route.api;
  */
 public interface Interceptor {
 
-  @RouteCode.Code
-  int intercept(RouteApi route, RouteResponse response);
+  void intercept(Router router, RouteResponse response);
 }

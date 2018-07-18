@@ -20,6 +20,13 @@
     android:text="navigation-simple" />
 
   <Button
+    android:onClick="onNavigationRequestCodeClick"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="navigation-request-code" />
+
+  <Button
     android:onClick="onNavigationWithApiClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -37,17 +44,6 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:text="navigation-interceptor" />
-  <Button
-    android:onClick="onNavigationInterceptorApiClick"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="navigation-interceptor-api" />
-  <Button
-    android:onClick="onNavigationInterceptorApiIntentClick"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="navigation-interceptor-intent" />
+
 
 </LinearLayout>
