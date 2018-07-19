@@ -45,7 +45,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':route-api')
-    implementation project(':route-annotation')
     annotationProcessor project(':route-compiler')
 
     implementation "com.jakewharton:butterknife:$rootProject.butterknifeVersion"

@@ -42,7 +42,7 @@ public class RouterApiImpl implements Router, Api {
 
   @Override
   public void navigation(String path) {
-    navigation(path, null, RouteResponse.INVALID_REQUEST_CODE, null);
+    navigation(path, null, RouteResponse.STANDARD_REQUEST_CODE, null);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class RouterApiImpl implements Router, Api {
 
   @Override
   public void navigation(String path, Interceptor interceptor) {
-    navigation(path, null, RouteResponse.INVALID_REQUEST_CODE, interceptor);
+    navigation(path, null, RouteResponse.STANDARD_REQUEST_CODE, interceptor);
   }
 
   @Override

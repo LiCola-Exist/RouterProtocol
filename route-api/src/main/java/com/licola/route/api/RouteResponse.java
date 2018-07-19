@@ -1,5 +1,6 @@
 package com.licola.route.api;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public class RouteResponse {
 
-  public static final int INVALID_REQUEST_CODE=-1;
+  public static final int STANDARD_REQUEST_CODE = Activity.RESULT_OK;
 
   public static void notifyTarget(RouteResponse response, String module,
       String target) {
@@ -63,7 +64,7 @@ public class RouteResponse {
   private Router router;
   private List<Interceptor> interceptors;
   private Context context;
-  private int requestCode=INVALID_REQUEST_CODE;
+  private int requestCode;
 
   private String path;
   @Nullable

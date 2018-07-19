@@ -14,7 +14,6 @@ import com.licola.route.annotation.Route;
 import com.licola.route.annotation.RoutePath;
 import com.licola.route.api.Api;
 import com.licola.route.api.Interceptor;
-import com.licola.route.api.RouteInterceptor;
 import com.licola.route.api.RouteResponse;
 import com.licola.route.api.Router;
 import com.licola.route.api.RouterApiImpl.Builder;
@@ -23,15 +22,6 @@ import com.licola.route.api.RouterApiImpl.Builder;
 public class MainActivity extends AppCompatActivity {
 
   private static final int REQUEST_CODE = 100;
-
-  RouteInterceptor baseRouteInterceptor = new RouteInterceptor() {
-    @Override
-    public boolean intercept(RouteResponse response) {
-      LLogger.d(response);
-
-      return false;
-    }
-  };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     Api api = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())
         .build();
+    //以下两行代码 效果一样
+//    api.navigation("app/second");
     api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY));//常量导航
   }
 
@@ -68,11 +60,9 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationWithApiClick(View view) {
     Api api = new Builder(getApplication())
         .addRouteRoots(new RouteApp.Route())
-        .addRouteInterceptors(baseRouteInterceptor)
         .build();
 
     RouteApp.Api appApi = new RouteApp.Api(api);
-//    api.navigation("second");//普通字面量
     appApi.navigation(RouteApp.SECOND_ACTIVITY);//参数注解会提示输入规则 must be one of
   }
 
@@ -82,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationThirdClick(View view) {
     Api api = new Builder(getApplication())
         .addRouteRoots(new MyRoute.Route())
-        .addRouteInterceptors(baseRouteInterceptor)
         .build();
 
     api.navigation("other/third");

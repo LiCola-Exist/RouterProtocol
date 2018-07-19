@@ -37,7 +37,6 @@ dependencies {
     implementation project(':module-third')
 
     implementation project(':route-api')
-    implementation project(':route-annotation')
     annotationProcessor project(':route-compiler')
 
     //log日志工具

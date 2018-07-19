@@ -52,7 +52,7 @@ public class JumpInterceptor implements Interceptor {
       intent.setClass(context, target);
     }
 
-    if (requestCode != RouteResponse.INVALID_REQUEST_CODE && context instanceof Activity) {
+    if (context instanceof Activity) {
       ((Activity) context).startActivityForResult(intent, requestCode);
     } else {
       context.startActivity(intent);
