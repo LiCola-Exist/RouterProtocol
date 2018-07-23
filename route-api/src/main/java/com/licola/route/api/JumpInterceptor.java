@@ -1,10 +1,15 @@
 package com.licola.route.api;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
+import com.licola.route.api.exceptions.RouteBadRequestException;
+import com.licola.route.api.exceptions.RouteConfigError;
 import java.util.Map;
 
 /**
@@ -14,59 +19,88 @@ import java.util.Map;
 public class JumpInterceptor implements Interceptor {
 
   @Override
-  public void intercept(Router router, RouteResponse response) {
-    Map<String, RouteMeta> routeMap = router.getRouteMap();
+  public void intercept(Chain chain) {
+    RealChain realChain= (RealChain) chain;
 
-    RouteMeta meta;
-    Intent intent = response.getIntent();
-    Context context = response.getContext();
-    int requestCode = response.getRequestCode();
+    Map<String, RouteMeta> routeMap = realChain.getRouteMap();
+    Context context = realChain.getContext();
 
-    if (isResolveIntent(context, intent)) {
-      meta = RouteMeta.create(null, "external", "unknown");
-    } else {
-
-      if (intent == null) {
-        intent = new Intent();
-        response.setIntent(intent);
-      }
-
-      String path = response.getPath();
-      if (routeMap.isEmpty()) {
-        RouteResponse.notifyError(response, "路由配置错误 路由表为空");
-        meta = null;
-      }
-      if (path == null || path.isEmpty()) {
-        meta = null;
-        RouteResponse.notifyFailed(response, "路由查表方式跳转 但是path路由为空 无法查表");
-      } else {
-        meta = routeMap.get(path);
-        if (meta == null) {
-          RouteResponse.notifyFailed(response, "没有发现请求目标");
-        }
-      }
+    RouteRequest request = realChain.getRequest();
+    if (request == null) {
+      chain.onBreak(new RouteBadRequestException("RouteRequest == null"));
+      return;
     }
 
-    if (meta != null && meta.getTarget() != null) {
+    if (realChain.getResponse() != null) {
+      chain.onProcess();
+      return;
+    }
+
+    Intent intent = request.getIntent();
+    int requestCode = request.getRequestCode();
+    RouteResponse response;
+
+    String requestPath = request.getPath();
+    String redirectPath = request.getRedirectPath();
+
+    if (isResolveNotDeclareIntent(context, intent)) {
+      boolean isRedirect = !Utils.isEmpty(requestPath) || !Utils.isEmpty(redirectPath);
+      response = RouteResponse.createNotDeclare(intent, requestCode, isRedirect);
+    } else {
+
+      if (Utils.isEmpty(routeMap)) {
+        chain.onBreak(new RouteConfigError("路由配置错误 路由表为空"));
+        return;
+      }
+
+      String path = Utils.isEmpty(redirectPath) ? requestPath : redirectPath;
+
+      if (Utils.isEmpty(path)) {
+        chain.onBreak(new RouteBadRequestException("路由查表方式跳转 但是path为空 无法查表"));
+        return;
+      }
+
+      RouteMeta meta = routeMap.get(path);
+      if (meta == null || meta.getTarget() == null) {
+        chain.onBreak(new RouteBadRequestException("没有发现请求目标"));
+        return;
+      }
+
       Class<?> target = meta.getTarget();
+      if (intent == null) {
+        intent = new Intent();
+        request.setIntent(intent);
+      }
       intent.setClass(context, target);
+
+      response = RouteResponse
+          .createDeclare(intent, requestCode, path, meta, !Utils.isEmpty(redirectPath));
     }
 
     if (context instanceof Activity) {
       ((Activity) context).startActivityForResult(intent, requestCode);
-    } else {
+    } else if (context instanceof Application) {
       context.startActivity(intent);
     }
 
-    RouteResponse.notifySuccess(response, meta);
+    chain.onProcess(response);
 
   }
 
   /**
+   * 该Intent能否被PM隐式解析
+   * 如通过 setAction() 设置，使得能够被外部解析
    *
+   * @return true:能够被隐式解析
    */
-  private static boolean isResolveIntent(Context context, @Nullable Intent intent) {
-    return intent != null && intent.resolveActivity(context.getPackageManager()) != null;
+  private static boolean isResolveNotDeclareIntent(Context context, @Nullable Intent intent) {
+    if (intent == null) {
+      return false;
+    }
+
+    ResolveInfo resolveInfo = context.getPackageManager()
+        .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    return resolveInfo != null;
   }
 
 

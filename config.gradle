@@ -4,7 +4,7 @@ ext {
             maven      : 'com.github.dcendents.android-maven',
     ]
     bintray = [
-            version       : "1.0.5", // 指定库的版本号
+            version       : "1.0.6", // 指定库的版本号
             group         : "com.licola", // 库的group名，确定好之后不能修改
 
             siteUrl       : 'https://github.com/LiCola/RouterProtocol', // 项目开源地址

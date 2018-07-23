@@ -6,10 +6,7 @@ package com.licola.route.api;
  */
 public interface RouteInterceptor {
 
-  /**
-   *
-   * @param response 能够跳转的路由响应信息
-   * @return true：拦截信息流 false：不拦截信息流，继续调用后续拦截器
-   */
-  boolean intercept(final RouteResponse response);
+  boolean intercept(Chain chain, RouteResponse response);
+
+  boolean intercept(Chain chain, Throwable throwable);
 }

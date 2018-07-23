@@ -45,5 +45,18 @@
     android:layout_marginTop="16dp"
     android:text="navigation-interceptor" />
 
+  <Button
+    android:onClick="onNavigationInterceptorArgClick"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="navigation-interceptor-arg" />
+
+  <Button
+    android:onClick="onNavigationRouteInterceptorClick"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="navigation-route-interceptor" />
 
 </LinearLayout>
