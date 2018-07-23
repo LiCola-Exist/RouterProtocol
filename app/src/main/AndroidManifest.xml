@@ -17,7 +17,8 @@
       </intent-filter>
     </activity>
     <activity android:name=".SecondActivity" />
-    <activity android:name=".RedirectActivity"></activity>
+    <activity android:name=".RedirectActivity" />
+    <activity android:name=".mvp.ViewActivity"></activity>
   </application>
 
 </manifest>

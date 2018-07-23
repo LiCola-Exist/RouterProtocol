@@ -25,7 +25,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':route-annotation')
+    implementation project(':route-annotation')
     compileOnly "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
 
     testImplementation "junit:junit:$rootProject.junitVersion"
