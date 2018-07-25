@@ -31,6 +31,28 @@ public class Utils {
     return new String(chars).intern();
   }
 
+  /**
+   * 类命名方式转常量命名方式
+   * 如MainActivity->MAIN_ACTIVITY
+   *
+   * @param className UpperCamelCase命名方式
+   * @return 常量命名方式 单词用下划线隔开
+   */
+  static String classNameToUnderline(String className) {
+    StringBuilder builder = new StringBuilder();
+
+    char[] chars = className.toCharArray();
+    for (int i = 0; i < chars.length; i++) {
+      char aChar = chars[i];
+      if (i > 0 && Character.isUpperCase(aChar)) {
+        builder.append('_');
+      }
+      builder.append(Character.toUpperCase(aChar));
+    }
+
+    return builder.toString();
+  }
+
   static void error(Messager messager, String msg, Object... args) {
     if (args != null && args.length > 0) {
       msg = String.format(Locale.CHINA, msg, args);

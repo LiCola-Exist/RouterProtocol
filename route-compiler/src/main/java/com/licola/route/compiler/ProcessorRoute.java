@@ -151,7 +151,7 @@ public class ProcessorRoute {
       Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
     String elementName = element.getSimpleName().toString();
-    elementName = elementName.replace("Activity", "_Activity").toUpperCase();
+    elementName = Utils.classNameToUnderline(elementName);
     String name = element.getAnnotation(Route.class).name();
 
     if (CheckUtils.isEmpty(name)) {
@@ -176,6 +176,8 @@ public class ProcessorRoute {
             elementName,
             moduleName);
   }
+
+
 
   private List<MethodSpec> makeMehtods() {
 
