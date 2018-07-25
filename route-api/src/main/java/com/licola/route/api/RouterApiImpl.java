@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.LinearLayout;
 import com.licola.route.annotation.RouteMeta;
 import java.util.ArrayList;
 import java.util.Collections;

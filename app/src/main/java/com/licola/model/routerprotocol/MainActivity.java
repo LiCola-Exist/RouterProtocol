@@ -103,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest request = chain.getRequest();
                     request.redirectByIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    chain.onProcess();
+                    RouteResponse response = chain.onProcess();
+                    LLogger.d(response);
                   }
                 })
                 .setNegativeButton("取消", new OnClickListener() {
@@ -115,22 +116,24 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("跳转", new OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
-                    chain.onProcess();
+                    RouteResponse response = chain.onProcess();
+                    LLogger.d(response);
                   }
                 })
                 .show();
+
           }
 
         });
 
   }
 
-  public void onNavigationInterceptorArgClick(View view) {
+  public void onNavigationInterceptorArgClick(final View view) {
     Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .addInterceptors(new Interceptor() {
           @Override
-          public void intercept(Chain chain) {
+          public void intercept(final Chain chain) {
             LLogger.d("优先级较低 且需要根据添加顺序 开始添加附带参数");
             Intent intent = chain.getRequest().putExtra();
             intent.putExtra("key-build", "value-build");
@@ -142,12 +145,16 @@ public class MainActivity extends AppCompatActivity {
 
     api.navigation("app/second", new Interceptor() {
       @Override
-      public void intercept(Chain chain) {
+      public void intercept(final Chain chain) {
         LLogger.d("优先级最高的 随参数注入拦截器 开始添加附带参数");
         Intent intent = chain.getRequest().putExtra();
         intent.putExtra("key-api", "value-api");
         RouteResponse response = chain.onProcess();
+        if (RouteResponse.isSuccess(response)) {
+          LLogger.d("成功导航 可以发送EventBus事件");
+        }
         LLogger.d(response);
+
       }
     });
 

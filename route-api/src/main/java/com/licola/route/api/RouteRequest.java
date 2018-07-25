@@ -25,7 +25,7 @@ public class RouteRequest {
     return new RouteRequest(requestCode,path);
   }
 
-  RouteRequest(int requestCode,
+  private RouteRequest(int requestCode,
       String path) {
     this.requestCode = requestCode;
     this.path = path;

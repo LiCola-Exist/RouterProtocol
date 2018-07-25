@@ -20,7 +20,7 @@ public class JumpInterceptor implements Interceptor {
 
   @Override
   public void intercept(Chain chain) {
-    RealChain realChain= (RealChain) chain;
+    RealChain realChain = (RealChain) chain;
 
     Map<String, RouteMeta> routeMap = realChain.getRouteMap();
     Context context = realChain.getContext();

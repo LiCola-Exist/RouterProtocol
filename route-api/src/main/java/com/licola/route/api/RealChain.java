@@ -1,6 +1,8 @@
 package com.licola.route.api;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteEmptyResponseException;
 import java.util.List;
@@ -18,7 +20,9 @@ public class RealChain implements Chain {
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
+  @NonNull
   private RouteRequest request;
+  @Nullable
   private RouteResponse response;
 
   @Override
@@ -66,13 +70,16 @@ public class RealChain implements Chain {
       List<RouteInterceptor> routeInterceptors,
       RouteRequest request
   ) {
+    if (request == null) {
+      throw new IllegalArgumentException("request==null");
+    }
     return new RealChain(routeMap, context, interceptors, routeInterceptors, request);
   }
 
-  RealChain(Map<String, RouteMeta> routeMap, Context context,
+  private RealChain(Map<String, RouteMeta> routeMap, Context context,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
-      RouteRequest request) {
+      @NonNull RouteRequest request) {
     this.routeMap = routeMap;
     this.context = context;
     this.interceptors = interceptors;
@@ -88,16 +95,19 @@ public class RealChain implements Chain {
     return context;
   }
 
+  @NonNull
   @Override
   public RouteRequest getRequest() {
     return request;
   }
 
+  @Nullable
   @Override
   public RouteResponse getResponse() {
     return response;
   }
 
+  @NonNull
   @Override
   public Chain clone() {
     return newChain(routeMap, context, interceptors, routeInterceptors, request);

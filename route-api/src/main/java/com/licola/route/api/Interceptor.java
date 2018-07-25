@@ -1,8 +1,11 @@
 package com.licola.route.api;
 
 /**
- * Created by LiCola on 2018/7/5.
- * 对请求进行处理的拦截器
+ *
+ * 拦截器
+ *
+ * @author LiCola
+ * @date 2018/7/5
  */
 public interface Interceptor {
 
