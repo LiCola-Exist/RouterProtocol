@@ -1,5 +1,7 @@
 package com.licola.model.routerprotocol.mvp;
 
+import android.app.Activity;
+import android.content.Intent;
 import com.licola.model.routerprotocol.mvp.VPContract.View;
 import com.licola.route.api.Api;
 import com.licola.route.api.Chain;
@@ -32,5 +34,10 @@ public class Presenter implements VPContract.Presenter {
         chain.onProcess();
       }
     });
+  }
+
+  @Override
+  public void onNavigation(Activity activity,Intent intent) {
+    activity.startActivity(intent);
   }
 }

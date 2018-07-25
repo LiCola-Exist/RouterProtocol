@@ -134,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
             LLogger.d("优先级较低 且需要根据添加顺序 开始添加附带参数");
             Intent intent = chain.getRequest().putExtra();
             intent.putExtra("key-build", "value-build");
-            chain.onProcess();
+            RouteResponse response = chain.onProcess();
+            LLogger.d(response);
           }
         })
         .build();
@@ -145,7 +146,8 @@ public class MainActivity extends AppCompatActivity {
         LLogger.d("优先级最高的 随参数注入拦截器 开始添加附带参数");
         Intent intent = chain.getRequest().putExtra();
         intent.putExtra("key-api", "value-api");
-        chain.onProcess();
+        RouteResponse response = chain.onProcess();
+        LLogger.d(response);
       }
     });
 
@@ -158,13 +160,13 @@ public class MainActivity extends AppCompatActivity {
         .openDebugLog()
         .addRouteInterceptors(new RouteInterceptor() {
           @Override
-          public boolean intercept(Chain chain, RouteResponse response) {
+          public boolean onResponse(Chain chain, RouteResponse response) {
             LLogger.d(chain, response);
             return false;
           }
 
           @Override
-          public boolean intercept(Chain chain, Throwable throwable) {
+          public boolean onFailure(Chain chain, Throwable throwable) {
             LLogger.d(chain, throwable);
             if (throwable instanceof RouteBadRequestException) {
               Chain clone = chain.clone();

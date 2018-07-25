@@ -1,6 +1,7 @@
 package com.licola.route.api.exceptions;
 
 /**
+ *
  * @author LiCola
  * @date 2018/7/23
  */

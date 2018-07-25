@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
-import com.licola.llogger.LLogger;
+import android.content.Intent;
 import com.licola.route.api.Api;
 import com.licola.route.api.Chain;
 import com.licola.route.api.Interceptor;
@@ -54,5 +54,14 @@ public class PresenterTest {
     Chain chain = mock(Chain.class);
     captor.getValue().intercept(chain);
     verify(chain).onProcess();
+
+  }
+
+  @Test
+  public void onNavigationA() {
+    Activity activity = mock(Activity.class);
+    Intent intent = mock(Intent.class);
+    presenter.onNavigation(activity, intent);
+    verify(activity).startActivity(intent);
   }
 }

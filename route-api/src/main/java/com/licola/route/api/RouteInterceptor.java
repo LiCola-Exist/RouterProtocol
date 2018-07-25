@@ -6,7 +6,7 @@ package com.licola.route.api;
  */
 public interface RouteInterceptor {
 
-  boolean intercept(Chain chain, RouteResponse response);
+  boolean onResponse(Chain chain, RouteResponse response);
 
-  boolean intercept(Chain chain, Throwable throwable);
+  boolean onFailure(Chain chain, Throwable throwable);
 }

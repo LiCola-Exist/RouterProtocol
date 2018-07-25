@@ -6,9 +6,9 @@ package com.licola.route.api;
  */
 public interface Chain  {
 
-  void onProcess();
+  RouteResponse onProcess();
 
-  void onProcess(RouteResponse response);
+  RouteResponse onProcess(RouteResponse response);
 
   void onBreak(Throwable throwable);
 

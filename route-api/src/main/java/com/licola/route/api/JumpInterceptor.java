@@ -53,6 +53,7 @@ public class JumpInterceptor implements Interceptor {
         return;
       }
 
+      //优先使用 重定向路径
       String path = Utils.isEmpty(redirectPath) ? requestPath : redirectPath;
 
       if (Utils.isEmpty(path)) {
@@ -88,7 +89,7 @@ public class JumpInterceptor implements Interceptor {
   }
 
   /**
-   * 该Intent能否被PM隐式解析
+   * 该Intent能否被PackageManager隐式解析
    * 如通过 setAction() 设置，使得能够被外部解析
    *
    * @return true:能够被隐式解析

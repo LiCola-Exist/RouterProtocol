@@ -1,6 +1,7 @@
 package com.licola.route.api.exceptions;
 
 /**
+ * 路由配置错误
  * @author LiCola
  * @date 2018/7/23
  */

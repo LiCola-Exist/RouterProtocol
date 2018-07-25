@@ -22,14 +22,14 @@ public class RealChain implements Chain {
   private RouteResponse response;
 
   @Override
-  public void onProcess() {
-    onProcess(null);
+  public RouteResponse onProcess() {
+    return onProcess(null);
   }
 
   private int index = 0;
 
   @Override
-  public void onProcess(RouteResponse newResponse) {
+  public RouteResponse onProcess(RouteResponse newResponse) {
 
     response = newResponse != null ? newResponse : response;
 
@@ -40,19 +40,22 @@ public class RealChain implements Chain {
         onBreak(new RouteEmptyResponseException("没有拦截器处理得到RouteResponse"));
       }
     } else {
-      for (RouteInterceptor routeInterceptor : routeInterceptors) {
-        if (routeInterceptor.intercept(this, response)) {
-          return;
+      if (routeInterceptors != null && !routeInterceptors.isEmpty()) {
+        for (RouteInterceptor routeInterceptor : routeInterceptors) {
+          if (routeInterceptor.onResponse(this, response)) {
+            break;
+          }
         }
       }
     }
+    return response;
 
   }
 
   @Override
   public void onBreak(final Throwable throwable) {
     for (RouteInterceptor routeInterceptor : routeInterceptors) {
-      if (routeInterceptor.intercept(this, throwable)) {
+      if (routeInterceptor.onFailure(this, throwable)) {
         return;
       }
     }
