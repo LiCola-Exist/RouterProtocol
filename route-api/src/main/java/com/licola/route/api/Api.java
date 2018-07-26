@@ -10,9 +10,13 @@ public interface Api {
 
   void navigation(String path);
 
-  void navigation(String path, Activity activity, int requestCode);
+  void navigation(Interceptor interceptor);
 
   void navigation(String path, Interceptor interceptor);
+
+  void navigation(Activity activity, int requestCode, Interceptor interceptor);
+
+  void navigation(String path, Activity activity, int requestCode);
 
   void navigation(String path, Activity activity, int requestCode, Interceptor interceptor);
 

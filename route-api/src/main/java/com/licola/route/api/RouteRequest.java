@@ -14,56 +14,85 @@ public class RouteRequest {
   public static final int STANDARD_REQUEST_CODE = Activity.RESULT_OK;
 
   private int requestCode;
-  private String path;
+  @Nullable
+  private String originalPath;
   @Nullable
   private String redirectPath;
   @Nullable
   private Intent intent;
 
   public static RouteRequest create(int requestCode,
-      String path){
-    return new RouteRequest(requestCode,path);
+      String path) {
+    return new RouteRequest(requestCode, path);
   }
 
   private RouteRequest(int requestCode,
-      String path) {
+      String originalPath) {
     this.requestCode = requestCode;
-    this.path = path;
+    this.originalPath = originalPath;
   }
 
   /**
-   * 通过该方法 得到Intent对象 可以添加附加参数
-   * @return
+   * 返回Intent实例
+   * 建议使用该方法得到的Intent
+   * 1:添加extra附加参数
+   * 2:设置flag标识
    */
-  public Intent putExtra(){
+  public Intent putArgs() {
     if (this.intent == null) {
       this.intent = new Intent();
     }
     return intent;
   }
 
-  public boolean redirectByPath(String redirectPath){
-    if (redirectPath==null){
-      return false;
-    }
-
-    if (path.equals(redirectPath)){
-      return false;
-    }
-
-    this.redirectPath=redirectPath;
-    return true;
-  }
-
-  public Intent redirectByIntent(){
-    if (this.intent == null) {
-      this.intent = new Intent();
-    }
+  /**
+   * 更新Intent
+   * 建议使用该方法返回的Intent
+   * 1:这是action实现隐式启动
+   */
+  public Intent notifyIntent() {
+    this.intent = new Intent();
     return intent;
   }
 
-  public String getPath() {
-    return path;
+
+  /**
+   * 更新显式路径
+   *
+   * @return true:成功更新路径
+   */
+  public boolean notifyPath(String newPath) {
+
+    //非空检查
+    if (Utils.isEmpty(newPath)) {
+      return false;
+    }
+
+    //原始路径为空 直接更新
+    if (Utils.isEmpty(originalPath)) {
+      this.originalPath = newPath;
+      return true;
+    }
+
+    //重定向路径空 直接更新
+    if (Utils.isEmpty(redirectPath)) {
+      this.redirectPath = newPath;
+      return true;
+    }
+
+    //在原始路径和重定向路径非空 情况下 尝试更新重定向路径
+    if (!redirectPath.equals(newPath)) {
+      this.redirectPath = newPath;
+      return true;
+    }
+
+    return false;
+  }
+
+
+  @Nullable
+  public String getOriginalPath() {
+    return originalPath;
   }
 
   @Nullable
@@ -88,7 +117,7 @@ public class RouteRequest {
   public String toString() {
     final StringBuilder sb = new StringBuilder("RouteRequest{");
     sb.append("requestCode=").append(requestCode);
-    sb.append(", path='").append(path).append('\'');
+    sb.append(", originalPath='").append(originalPath).append('\'');
     sb.append(", redirectPath='").append(redirectPath).append('\'');
     sb.append(", intent=").append(intent);
     sb.append('}');

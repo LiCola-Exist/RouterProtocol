@@ -7,7 +7,7 @@ import com.licola.model.routerprotocol.R;
 import com.licola.route.RouteApp;
 import com.licola.route.annotation.Route;
 import com.licola.route.api.Api;
-import com.licola.route.api.RouterApiImpl;
+import com.licola.route.api.RouterApi;
 
 @Route(name = "mvp")
 public class ViewActivity extends AppCompatActivity implements VPContract.View {
@@ -19,7 +19,7 @@ public class ViewActivity extends AppCompatActivity implements VPContract.View {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_view);
 
-    Api api = new RouterApiImpl.Builder(getApplication())
+    Api api = new RouterApi.Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .build();
 

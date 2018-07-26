@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
-import android.widget.LinearLayout;
 import com.licola.route.annotation.RouteMeta;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +14,7 @@ import java.util.Map;
 /**
  * Created by LiCola on 2018/7/5.
  */
-public class RouterApiImpl implements Api {
+public class RouterApi implements Api {
 
   @NonNull
   private Application application;
@@ -26,7 +24,7 @@ public class RouterApiImpl implements Api {
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
-  RouterApiImpl(Builder builder) {
+  RouterApi(Builder builder) {
     this.application = builder.application;
     this.interceptors = Collections.unmodifiableList(builder.interceptors);
     this.routeInterceptors = Collections.unmodifiableList(builder.routeInterceptors);
@@ -50,7 +48,6 @@ public class RouterApiImpl implements Api {
   @Override
   public void navigation(String path, Activity activity, int requestCode) {
     navigation(path, activity, requestCode, null);
-
   }
 
   @Override
@@ -59,7 +56,23 @@ public class RouterApiImpl implements Api {
   }
 
   @Override
+  public void navigation(Interceptor interceptor) {
+    navigation(null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
+  }
+
+  @Override
+  public void navigation(Activity activity, int requestCode, Interceptor interceptor) {
+    navigation(null, activity, requestCode, interceptor);
+  }
+
+  @Override
   public void navigation(String path, Activity activity, int requestCode, Interceptor interceptor) {
+
+    if (Utils.isEmpty(path) && interceptor == null) {
+      throw new IllegalArgumentException(
+          "path and interceptor cannot be null/empty at the same time ");
+    }
+
     List<Interceptor> interceptorAll = new ArrayList<>();
     if (interceptor != null) {
       interceptorAll.add(interceptor);
@@ -124,7 +137,7 @@ public class RouterApiImpl implements Api {
         throw new IllegalArgumentException("routeRoots can not empty");
       }
 
-      return new RouterApiImpl(this);
+      return new RouterApi(this);
     }
   }
 }

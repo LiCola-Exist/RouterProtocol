@@ -40,14 +40,13 @@ public class JumpInterceptor implements Interceptor {
     int requestCode = request.getRequestCode();
     RouteResponse response;
 
-    String requestPath = request.getPath();
+    String requestPath = request.getOriginalPath();
     String redirectPath = request.getRedirectPath();
 
     if (isResolveNotDeclareIntent(context, intent)) {
       boolean isRedirect = !Utils.isEmpty(requestPath) || !Utils.isEmpty(redirectPath);
       response = RouteResponse.createNotDeclare(intent, requestCode, isRedirect);
     } else {
-
       if (Utils.isEmpty(routeMap)) {
         chain.onBreak(new RouteConfigError("路由配置错误 路由表为空"));
         return;
@@ -63,7 +62,7 @@ public class JumpInterceptor implements Interceptor {
 
       RouteMeta meta = routeMap.get(path);
       if (meta == null || meta.getTarget() == null) {
-        chain.onBreak(new RouteBadRequestException("没有发现请求目标"));
+        chain.onBreak(new RouteBadRequestException("路由表中没有查询到请求目标"));
         return;
       }
 

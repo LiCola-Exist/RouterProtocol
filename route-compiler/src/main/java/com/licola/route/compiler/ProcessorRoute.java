@@ -252,6 +252,28 @@ public class ProcessorRoute {
         .returns(void.class)
         .build());
 
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterInterceptor)
+        .addStatement("api.navigation($L)",
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
+        )
+        .returns(void.class)
+        .build());
+
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterActivity)
+        .addParameter(parameterRequestCode)
+        .addParameter(parameterInterceptor)
+        .addStatement("api.navigation($L,$L,$L)",
+            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
+        )
+        .returns(void.class)
+        .build());
+
     return methodSpecs;
   }
 

@@ -3,6 +3,7 @@ package com.licola.model.routerprotocol;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -19,7 +20,7 @@ import com.licola.route.api.Interceptor;
 import com.licola.route.api.RouteInterceptor;
 import com.licola.route.api.RouteRequest;
 import com.licola.route.api.RouteResponse;
-import com.licola.route.api.RouterApiImpl.Builder;
+import com.licola.route.api.RouterApi.Builder;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteBreakException;
 
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     api.navigation("other/third");
   }
 
+
   /**
    * 拦截器的使用示例
    */
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())//注入app模块的路由
         .addRouteRoot(new RouteUser.Route())//注入module模块的路由
+        .openDebugLog()
         .build();
     api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY),
         new Interceptor() {
@@ -97,12 +100,12 @@ public class MainActivity extends AppCompatActivity {
             LLogger.d();
             new AlertDialog.Builder(MainActivity.this)
                 .setTitle("拦截器的使用")
-                .setMessage("假设要跳转的模块需要定位服务，并假设检测到定位服务未开启，点击设置跳转到定位服务设置")
+                .setMessage("假设要跳转的模块需要定位服务，并假设检测到定位服务未开启，点击设置跳转到系统设置-定位服务，点击重定向转到其他页面（如说明页面）")
                 .setNeutralButton("设置", new OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest request = chain.getRequest();
-                    request.redirectByIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    request.notifyIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     RouteResponse response = chain.onProcess();
                     LLogger.d(response);
                   }
@@ -113,9 +116,12 @@ public class MainActivity extends AppCompatActivity {
                     chain.onBreak(new RouteBreakException("用户主动取消"));
                   }
                 })
-                .setPositiveButton("跳转", new OnClickListener() {
+                .setPositiveButton("重定向", new OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
+                    RouteRequest request = chain.getRequest();
+                    request.notifyPath(
+                        RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.REDIRECT_ACTIVITY));
                     RouteResponse response = chain.onProcess();
                     LLogger.d(response);
                   }
@@ -135,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void intercept(final Chain chain) {
             LLogger.d("优先级较低 且需要根据添加顺序 开始添加附带参数");
-            Intent intent = chain.getRequest().putExtra();
+            Intent intent = chain.getRequest().putArgs();
             intent.putExtra("key-build", "value-build");
             RouteResponse response = chain.onProcess();
             LLogger.d(response);
@@ -147,8 +153,10 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void intercept(final Chain chain) {
         LLogger.d("优先级最高的 随参数注入拦截器 开始添加附带参数");
-        Intent intent = chain.getRequest().putExtra();
-        intent.putExtra("key-api", "value-api");
+        RouteRequest request = chain.getRequest();
+        request.putArgs()
+            .putExtra("key-api-1", "value-api-1")
+            .putExtra("key-api-2", 100);
         RouteResponse response = chain.onProcess();
         if (RouteResponse.isSuccess(response)) {
           LLogger.d("成功导航 可以发送EventBus事件");
@@ -160,10 +168,9 @@ public class MainActivity extends AppCompatActivity {
 
   }
 
-
   public void onNavigationRouteInterceptorClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
+        .addRouteRoot(new RouteApp.Route())//添加的表中没有 app/third路径
         .openDebugLog()
         .addRouteInterceptors(new RouteInterceptor() {
           @Override
@@ -178,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
             if (throwable instanceof RouteBadRequestException) {
               Chain clone = chain.clone();
               RouteRequest request = clone.getRequest();
-              request.redirectByPath("app/user/login");
+              //如重定向到版本检测页 引导下载新版本
+              request.notifyPath("app/user/login");
               clone.onProcess();
             }
             return false;
@@ -186,8 +194,35 @@ public class MainActivity extends AppCompatActivity {
         })
         .build();
 
+    /**
+     * 故意发起一次注定失败的 模拟一些特殊场景导航
+     * 如通过推送通道接收的新消息，该新消息指定（推送参数指定页面信息）需要跳转到某个模块
+     * 而旧版本没有该模块，路由拦截器能够最终处理失败，处理旧版本新推送类型问题
+     */
     api.navigation("app/third");
 
+  }
+
+
+  public void onNavigationNotDeclareClick(View view) {
+    Api api = new Builder(getApplication())
+        .addRouteRoot(new RouteApp.Route())
+        .openDebugLog()
+        .build();
+
+    /**
+     * 尝试导航到 外部应用
+     * 因为本地路由表根本没有处理该导航的目标，所以方法只有拦截器参数
+     */
+    api.navigation(new Interceptor() {
+      @Override
+      public void intercept(Chain chain) {
+        RouteRequest request = chain.getRequest();
+        request.notifyIntent().setAction(Intent.ACTION_DIAL)
+            .setData(Uri.parse("tel:17600000000"));
+        chain.onProcess();
+      }
+    });
   }
 
   @Override
@@ -195,4 +230,6 @@ public class MainActivity extends AppCompatActivity {
     super.onActivityResult(requestCode, resultCode, data);
     LLogger.d(requestCode, resultCode, data);
   }
+
+
 }

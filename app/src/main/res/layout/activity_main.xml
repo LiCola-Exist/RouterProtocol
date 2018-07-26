@@ -13,50 +13,58 @@
     android:layout_height="wrap_content"
     android:text="this app module main activity" />
   <Button
-    android:onClick="onNavigationSimpleClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
+    android:onClick="onNavigationSimpleClick"
     android:text="navigation-simple" />
 
   <Button
-    android:onClick="onNavigationRequestCodeClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
+    android:onClick="onNavigationRequestCodeClick"
     android:text="navigation-request-code" />
 
   <Button
-    android:onClick="onNavigationWithApiClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
-    android:text="navigation-api" />
-  <Button
-    android:onClick="onNavigationThirdClick"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:text="navigation-to-third" />
-  <Button
     android:onClick="onNavigationInterceptorClick"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
     android:text="navigation-interceptor" />
 
   <Button
-    android:onClick="onNavigationInterceptorArgClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
-    android:text="navigation-interceptor-arg" />
+    android:onClick="onNavigationWithApiClick"
+    android:text="navigation-api" />
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:onClick="onNavigationThirdClick"
+    android:text="navigation-to-third" />
 
   <Button
-    android:onClick="onNavigationRouteInterceptorClick"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
+    android:onClick="onNavigationInterceptorArgClick"
+    android:text="navigation-interceptor-args" />
+
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:onClick="onNavigationRouteInterceptorClick"
     android:text="navigation-route-interceptor" />
+
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:onClick="onNavigationNotDeclareClick"
+    android:text="navigation-no-declare" />
 
 </LinearLayout>
