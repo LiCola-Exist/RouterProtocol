@@ -9,7 +9,7 @@ import com.licola.route.annotation.Route;
 import com.licola.route.api.Api;
 import com.licola.route.api.RouterApi;
 
-@Route(name = "mvp")
+@Route
 public class ViewActivity extends AppCompatActivity implements VPContract.View {
 
   private VPContract.Presenter presenter;
