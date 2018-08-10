@@ -5,8 +5,14 @@ dependencies {
     compile localGroovy()
 }
 
+dependencies {
+    compile 'com.android.tools.build:gradle:3.1.4'
+}
+
 repositories {
+    google()
     jcenter()
+    mavenCentral()
 }
 
 
