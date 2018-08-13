@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: com.licola.route.register.PluginLaunch
 
+testCreateJavaConfig{
+    str "动态内容"
+}
 
 android {
     compileSdkVersion rootProject.compileSdkVersion

@@ -1,9 +1,10 @@
+package com.licola.route.register
+
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import org.apache.commons.io.FileUtils
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
-
-import java.util.function.BiConsumer
-import java.util.function.Consumer
 
 public class TestTransform extends Transform {
 
@@ -53,10 +54,35 @@ public class TestTransform extends Transform {
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
-        System.out.println("------------------transform----------------------")
-        System.out.println(transformInvocation.context.path)
+        System.out.println("------------------transform开始----------------------")
+//        System.out.println(transformInvocation.context.path)
 
+        transformInvocation.inputs.each {TransformInput input->
+            input.directoryInputs.each { DirectoryInput directoryInput->
+                MyInjects.inject(directoryInput.file.absolutePath,mProject)
 
+                def dest=transformInvocation.outputProvider.getContentLocation(directoryInput.name,
+                        directoryInput.contentTypes,directoryInput.scopes,Format.DIRECTORY
+                )
+
+                FileUtils.copyDirectory(directoryInput.file,dest)
+            }
+
+            ////遍历jar文件 对jar不操作，但是要输出到out路径
+            input.jarInputs.each { JarInput jarInput ->
+                // 重命名输出文件（同目录copyFile会冲突）
+                def jarName = jarInput.name
+                println("jar = " + jarInput.file.getAbsolutePath())
+                def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
+                if (jarName.endsWith(".jar")) {
+                    jarName = jarName.substring(0, jarName.length() - 4)
+                }
+                def dest = transformInvocation.outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+                FileUtils.copyFile(jarInput.file, dest)
+            }
+        }
+
+        System.out.println("------------------transform结束----------------------")
 
     }
 

@@ -7,6 +7,9 @@ dependencies {
 
 dependencies {
     compile 'com.android.tools.build:gradle:3.1.4'
+    compile 'javassist:javassist:3.12.1.GA'
+    compile 'commons-io:commons-io:2.5'
+
 }
 
 repositories {
