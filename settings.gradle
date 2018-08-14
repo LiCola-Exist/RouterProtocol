@@ -1,4 +1,4 @@
-include ':app', ':buildsrc',
+include ':app',
         ':module',
         ':route-annotation',
         ':route-compiler',
