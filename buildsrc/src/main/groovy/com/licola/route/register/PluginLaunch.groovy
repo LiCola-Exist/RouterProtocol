@@ -19,7 +19,7 @@ public class PluginLaunch implements Plugin<Project> {
          */
         android.registerTransform(new TestTransform(project))
 
-        project.extensions.create("testCreateJavaConfig", MyPluginTestConfig)
+        project.extensions.create("routeConfig", MyPluginTestConfig)
 
         def isApp = project.plugins.hasPlugin(AppPlugin)
         if (isApp) {
@@ -29,7 +29,7 @@ public class PluginLaunch implements Plugin<Project> {
                 def scope = variantData.scope
 
                 //获取 build.gradle中创建的Ext
-                def config = project.extensions.getByName("testCreateJavaConfig")
+                def config = project.extensions.getByName("routeConfig")
 
                 def createTaskName = scope.getTaskName("Test-Plugin", "MyTestPlugin")
 

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: com.licola.route.register.PluginLaunch
 
-testCreateJavaConfig{
+routeConfig{
     str "动态内容"
 }
 
