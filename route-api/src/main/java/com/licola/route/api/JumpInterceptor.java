@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadRequestException;
@@ -80,11 +82,19 @@ public class JumpInterceptor implements Interceptor {
     if (context instanceof Activity) {
       ((Activity) context).startActivityForResult(intent, requestCode);
     } else if (context instanceof Application) {
+      //低版本下 必须添加该flag
+      handlerApplicationStartFlag(intent);
       context.startActivity(intent);
     }
 
     chain.onProcess(response);
 
+  }
+
+  private void handlerApplicationStartFlag(Intent intent) {
+    if (VERSION.SDK_INT < VERSION_CODES.N) {
+      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    }
   }
 
   /**
