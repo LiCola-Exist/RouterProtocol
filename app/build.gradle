@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: com.licola.route.register.PluginLaunch
 
 routeConfig{
-    str "动态内容"
+    str "路由"
 }
 
 android {
