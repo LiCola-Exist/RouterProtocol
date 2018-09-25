@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadRequestException;
@@ -15,8 +13,7 @@ import com.licola.route.api.exceptions.RouteConfigError;
 import java.util.Map;
 
 /**
- * Created by LiCola on 2018/7/5.
- * 控制实际的跳转的 跳转拦截器
+ * Created by LiCola on 2018/7/5. 控制实际的跳转的 跳转拦截器
  */
 public class JumpInterceptor implements Interceptor {
 
@@ -82,7 +79,6 @@ public class JumpInterceptor implements Interceptor {
     if (context instanceof Activity) {
       ((Activity) context).startActivityForResult(intent, requestCode);
     } else if (context instanceof Application) {
-      //低版本下 必须添加该flag
       handlerApplicationStartFlag(intent);
       context.startActivity(intent);
     }
@@ -92,14 +88,11 @@ public class JumpInterceptor implements Interceptor {
   }
 
   private void handlerApplicationStartFlag(Intent intent) {
-    if (VERSION.SDK_INT < VERSION_CODES.N) {
-      intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    }
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
   }
 
   /**
-   * 该Intent能否被PackageManager隐式解析
-   * 如通过 setAction() 设置，使得能够被外部解析
+   * 该Intent能否被PackageManager隐式解析 如通过 setAction() 设置，使得能够被外部解析
    *
    * @return true:能够被隐式解析
    */

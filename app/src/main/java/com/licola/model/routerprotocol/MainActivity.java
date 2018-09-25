@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest request = chain.getRequest();
                     request.notifyPath(
-                        RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.REDIRECT_ACTIVITY));
+                        RoutePath.makePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY));
                     RouteResponse response = chain.onProcess();
                     LLogger.d(response);
                   }

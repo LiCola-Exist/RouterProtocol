@@ -29,4 +29,8 @@ public class RegisterActivity extends AppCompatActivity {
   public void onViewClick(View view) {
     Log.d("module", "click");
   }
+
+
+
+
 }

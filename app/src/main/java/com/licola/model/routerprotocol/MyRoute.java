@@ -1,7 +1,6 @@
 package com.licola.model.routerprotocol;
 
 import com.licola.route.annotation.RouteMeta;
-import com.licola.route.annotation.RoutePath;
 import com.licola.route.api.RouteRoot;
 import java.util.Map;
 
