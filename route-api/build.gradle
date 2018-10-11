@@ -1,11 +1,10 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-
+    compileSdkVersion rootProject.ext.base["compileSdkVersion"]
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.targetSdkVersion
+        minSdkVersion rootProject.ext.base["minSdkVersion"]
+        targetSdkVersion rootProject.ext.base["targetSdkVersion"]
         versionCode 1
         versionName "1.0"
 
@@ -26,11 +25,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':route-annotation')
-    compileOnly "com.android.support:support-annotations:$rootProject.supportLibraryVersion"
+    compileOnly rootProject.ext.dependencies["support-annotations"]
 
-    testImplementation "junit:junit:$rootProject.junitVersion"
-    androidTestImplementation "com.android.support.test:runner:$rootProject.runnerVersion"
-    androidTestImplementation "com.android.support.test:rules:$rootProject.rulesVersion"}
+    testImplementation rootProject.ext.dependencies["junit"]
+    androidTestImplementation rootProject.ext.dependencies["runner"]
+    androidTestImplementation rootProject.ext.dependencies["rules"]
 
+}
 
 apply from : 'maven.gradle'

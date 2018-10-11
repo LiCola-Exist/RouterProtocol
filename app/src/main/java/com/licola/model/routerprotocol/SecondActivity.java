@@ -30,11 +30,4 @@ public class SecondActivity extends AppCompatActivity {
     setResult(RESULT_CODE);
   }
 
-  private final class Adapter {
-
-    private class ViewHolder {
-
-      public static final int ID= R.layout.activity_second;
-    }
-  }
 }

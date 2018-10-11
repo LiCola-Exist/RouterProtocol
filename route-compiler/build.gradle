@@ -4,8 +4,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //项目注解
     implementation project(':route-annotation')
-    implementation "com.google.auto.service:auto-service:$rootProject.autoServiceVersion"
-    implementation "com.squareup:javapoet:$rootProject.javapoetVersion"
+    implementation rootProject.ext.dependencies["auto-service"]
+    implementation rootProject.ext.dependencies["javapoet"]
 }
 
 sourceCompatibility = rootProject.sourceCompatibilityVersion
