@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
+ *
+ * 路由请求体的封装
+ *
  * @author LiCola
  * @date 2018/7/23
  */

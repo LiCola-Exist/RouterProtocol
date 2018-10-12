@@ -24,7 +24,7 @@ import com.licola.route.api.RouterApi.Builder;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteBreakException;
 
-@Route(name = "main")
+@Route(path = "main")
 public class MainActivity extends AppCompatActivity {
 
   private static final int REQUEST_CODE = 100;
@@ -91,6 +91,17 @@ public class MainActivity extends AppCompatActivity {
     Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())//注入app模块的路由
         .addRouteRoot(new RouteUser.Route())//注入module模块的路由
+        .addInterceptors(new Interceptor() {
+          @Override
+          public void intercept(Chain chain) {
+            RouteResponse routeResponse = chain.onProcess();
+            LLogger.d(
+                "是否成功跳转:" + RouteResponse.isSuccess(routeResponse),
+                "是否路由表显式跳转：" + RouteResponse.isDeclare(routeResponse),
+                "是否重定向：" + RouteResponse.isRedirect(routeResponse)
+            );
+          }
+        })
         .openDebugLog()
         .build();
     api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY),
@@ -140,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(final Chain chain) {
-            LLogger.d("优先级较低 且需要根据添加顺序 开始添加附带参数");
+            LLogger.d("优先级较低 且需要根据添加顺序调用 开始添加附带参数");
             Intent intent = chain.getRequest().putArgs();
             intent.putExtra("key-build", "value-build");
             RouteResponse response = chain.onProcess();
@@ -158,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
             .putExtra("key-api-1", "value-api-1")
             .putExtra("key-api-2", 100);
         RouteResponse response = chain.onProcess();
-        if (RouteResponse.isSuccess(response)) {
-          LLogger.d("成功导航 可以发送EventBus事件");
+        if (!RouteResponse.isRedirect(response)) {
+          LLogger.d("成功导航且非重定向 即成功跳转到原目标 可以发送EventBus事件");
         }
         LLogger.d(response);
 
@@ -213,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 尝试导航到 外部应用
      * 因为本地路由表根本没有处理该导航的目标，所以方法只有拦截器参数
+     * 把外部应用的跳转页统一到路由器中来，统一管理
      */
     api.navigation(new Interceptor() {
       @Override
@@ -228,6 +240,15 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    Bundle extras = data.getExtras();
+    if (extras != null) {
+      LLogger.d("带的参数的Result,Intent数据非空");
+      for (String key : extras.keySet()) {
+        LLogger.d(key, extras.get(key));
+      }
+    } else {
+      LLogger.d("不带的参数的Result,Intent数据为空");
+    }
     LLogger.d(requestCode, resultCode, data);
   }
 

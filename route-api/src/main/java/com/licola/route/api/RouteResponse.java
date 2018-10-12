@@ -6,7 +6,10 @@ import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 
 /**
- * Created by LiCola on 2018/7/5.
+ * 路由响应体的封装
+ *
+ * @author LiCola
+ * @date 2018/7/23
  */
 public class RouteResponse {
 
@@ -26,10 +29,10 @@ public class RouteResponse {
   /**
    * 是否成功导航
    *
-   * @return true:响应体非空 且显式启动（应用内部） 且非重定向
+   * @return true:响应体非空
    */
   public static boolean isSuccess(RouteResponse response) {
-    return response != null && response.isDeclare && !response.isRedirect;
+    return response != null;
   }
 
   /**

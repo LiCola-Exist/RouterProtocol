@@ -65,7 +65,7 @@ public class RealChain implements Chain {
     }
   }
 
-  public static Chain newChain(Map<String, RouteMeta> routeMap, Context context,
+  static Chain newChain(Map<String, RouteMeta> routeMap, Context context,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
       RouteRequest request

@@ -73,7 +73,8 @@ public class RouterApi implements Api {
           "path and interceptor cannot be null/empty at the same time ");
     }
 
-    List<Interceptor> interceptorAll = new ArrayList<>();
+    int size = interceptors.size() + 1;
+    List<Interceptor> interceptorAll = new ArrayList<>(size);
     if (interceptor != null) {
       interceptorAll.add(interceptor);
     }

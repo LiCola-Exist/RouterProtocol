@@ -30,13 +30,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
-    android:onClick="onNavigationInterceptorClick"
-    android:text="navigation-interceptor" />
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
     android:onClick="onNavigationWithApiClick"
     android:text="navigation-api" />
   <Button
@@ -45,6 +38,13 @@
     android:layout_marginTop="16dp"
     android:onClick="onNavigationThirdClick"
     android:text="navigation-to-third" />
+
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:onClick="onNavigationInterceptorClick"
+    android:text="navigation-interceptor" />
 
   <Button
     android:layout_width="match_parent"

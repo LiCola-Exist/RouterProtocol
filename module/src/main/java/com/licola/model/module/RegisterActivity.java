@@ -10,7 +10,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.licola.route.annotation.Route;
 
-@Route(name = "register")
+@Route(path = "register")
 public class RegisterActivity extends AppCompatActivity {
 
   @BindView(R2.id.tv_hint)

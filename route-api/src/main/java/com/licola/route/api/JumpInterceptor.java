@@ -52,7 +52,7 @@ public class JumpInterceptor implements Interceptor {
       }
 
       //优先使用 重定向路径
-      String path = Utils.isEmpty(redirectPath) ? requestPath : redirectPath;
+      String path = !Utils.isEmpty(redirectPath) ? redirectPath : requestPath;
 
       if (Utils.isEmpty(path)) {
         chain.onBreak(new RouteBadRequestException("路由查表方式跳转 但是path为空 无法查表"));

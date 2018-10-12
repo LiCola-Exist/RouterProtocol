@@ -162,7 +162,7 @@ public class ProcessorRoute {
 
   private static String fetchName(Element element) {
 
-    String nameValue = element.getAnnotation(Route.class).name();
+    String nameValue = element.getAnnotation(Route.class).path();
 
     if (CheckUtils.isEmpty(nameValue)) {
       return element.getSimpleName().toString();

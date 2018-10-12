@@ -1,15 +1,15 @@
 package com.licola.model.routerprotocol;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import com.licola.llogger.LLogger;
 import com.licola.route.annotation.Route;
 
-@Route(name = "second")
+@Route(path = "second")
 public class SecondActivity extends AppCompatActivity {
 
-  private static final int RESULT_CODE=200;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +27,10 @@ public class SecondActivity extends AppCompatActivity {
       LLogger.d("不带参数的Intent");
     }
 
-    setResult(RESULT_CODE);
+    Intent data = new Intent();
+    data.putExtra("key1", "value1");
+    data.putExtra("key2", 1000);
+    setResult(Activity.RESULT_OK, data);
   }
 
 }
