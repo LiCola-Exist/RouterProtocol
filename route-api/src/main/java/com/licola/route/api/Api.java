@@ -3,6 +3,8 @@ package com.licola.route.api;
 import android.app.Activity;
 
 /**
+ * 路由对外暴露的api接口
+ *
  * @author LiCola
  * @date 2018/7/18
  */

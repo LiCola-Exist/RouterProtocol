@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
   /**
    * 使用自动生成的Api 友好使用 带注解提示的 路由使用
    */
-  public void onNavigationWithApiClick(View view) {
+  public void onNavigationUseProtocolClick(View view) {
     Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .build();

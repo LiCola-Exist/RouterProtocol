@@ -12,7 +12,7 @@ import java.util.Map;
  * @author LiCola
  * @date 2018/7/23
  */
-public class RealChain implements Chain {
+class RealChain implements Chain {
 
   private Map<String, RouteMeta> routeMap;
 

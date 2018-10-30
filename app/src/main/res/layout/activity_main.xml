@@ -1,70 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:padding="16dp"
-  android:orientation="vertical"
   tools:context=".MainActivity">
-
-  <TextView
-    android:id="@+id/tv_hint"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="this app module main activity" />
-  <Button
+  <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationSimpleClick"
-    android:text="navigation-simple" />
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical">
 
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationRequestCodeClick"
-    android:text="navigation-request-code" />
+    <TextView
+      android:id="@+id/tv_hint"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="this app module main activity" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationSimpleClick"
+      android:text="simple/简单使用" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationRequestCodeClick"
+      android:text="request-code/带RequestCode请求" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationUseProtocolClick"
+      android:text="api/使用协议api" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationThirdClick"
+      android:text="to-third/处理第三方库模块的请求" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationInterceptorClick"
+      android:text="interceptor/拦截器的示例使用" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationInterceptorArgClick"
+      android:text="interceptor-args/拦截器的注入参数示例" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationRouteInterceptorClick"
+      android:text="route-interceptor/路由拦截器的使用示例" />
+    <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:onClick="onNavigationNotDeclareClick"
+      android:text="no-declare/非声明式的请求" />
 
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationWithApiClick"
-    android:text="navigation-api" />
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationThirdClick"
-    android:text="navigation-to-third" />
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationInterceptorClick"
-    android:text="navigation-interceptor" />
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationInterceptorArgClick"
-    android:text="navigation-interceptor-args" />
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationRouteInterceptorClick"
-    android:text="navigation-route-interceptor" />
-
-  <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:onClick="onNavigationNotDeclareClick"
-    android:text="navigation-no-declare" />
-
-</LinearLayout>
+  </LinearLayout>
+</android.support.v4.widget.NestedScrollView>
