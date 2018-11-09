@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteConfigError;
@@ -23,6 +25,7 @@ public class JumpInterceptor implements Interceptor {
 
     Map<String, RouteMeta> routeMap = realChain.getRouteMap();
     Context context = realChain.getContext();
+    Fragment fragment = realChain.getFragment();
 
     RouteRequest request = realChain.getRequest();
     if (request == null) {
@@ -76,15 +79,17 @@ public class JumpInterceptor implements Interceptor {
           .createDeclare(intent, requestCode, path, meta, !Utils.isEmpty(redirectPath));
     }
 
-    if (context instanceof Activity) {
-      ((Activity) context).startActivityForResult(intent, requestCode);
-    } else if (context instanceof Application) {
+    if (context instanceof Application) {
       handlerApplicationStartFlag(intent);
       context.startActivity(intent);
+    } else if (context instanceof Activity) {
+      if (fragment != null && context instanceof FragmentActivity) {
+        ((FragmentActivity) context).startActivityFromFragment(fragment, intent, requestCode);
+      } else {
+        ((Activity) context).startActivityForResult(intent, requestCode);
+      }
     }
-
     chain.onProcess(response);
-
   }
 
   private void handlerApplicationStartFlag(Intent intent) {

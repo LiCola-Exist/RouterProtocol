@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    LLogger.d(requestCode,resultCode,data);
     Bundle extras = data.getExtras();
     if (extras != null) {
       LLogger.d("带的参数的Result,Intent数据非空");
@@ -249,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
     } else {
       LLogger.d("不带的参数的Result,Intent数据为空");
     }
-    LLogger.d(requestCode, resultCode, data);
   }
 
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import com.licola.route.annotation.RouteMeta;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,32 +43,51 @@ public class RouterApi implements Api {
 
   @Override
   public void navigation(String path) {
-    navigation(path, null, RouteRequest.STANDARD_REQUEST_CODE, null);
+    process(path, null, null, RouteRequest.STANDARD_REQUEST_CODE, null);
   }
 
   @Override
   public void navigation(String path, Activity activity, int requestCode) {
-    navigation(path, activity, requestCode, null);
+    process(path, activity, null, requestCode, null);
+  }
+
+  @Override
+  public void navigation(String path, Fragment fragment, int requestCode) {
+    process(path, fragment.getActivity(), fragment, requestCode, null);
   }
 
   @Override
   public void navigation(String path, Interceptor interceptor) {
-    navigation(path, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
+    process(path, null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
   }
 
   @Override
   public void navigation(Interceptor interceptor) {
-    navigation(null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
+    process(null, null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
   }
 
   @Override
   public void navigation(Activity activity, int requestCode, Interceptor interceptor) {
-    navigation(null, activity, requestCode, interceptor);
+    process(null, activity, null, requestCode, interceptor);
+  }
+
+  @Override
+  public void navigation(Fragment fragment, int requestCode, Interceptor interceptor) {
+    process(null, fragment.getActivity(), fragment, requestCode, interceptor);
   }
 
   @Override
   public void navigation(String path, Activity activity, int requestCode, Interceptor interceptor) {
+    process(path, activity, null, requestCode, interceptor);
+  }
 
+  @Override
+  public void navigation(String path, Fragment fragment, int requestCode, Interceptor interceptor) {
+    process(path, fragment.getActivity(), fragment, requestCode, interceptor);
+  }
+
+  private void process(String path, Activity activity, Fragment fragment, int requestCode,
+      Interceptor interceptor) {
     if (Utils.isEmpty(path) && interceptor == null) {
       throw new IllegalArgumentException(
           "path and interceptor cannot be null/empty at the same time ");
@@ -83,7 +103,7 @@ public class RouterApi implements Api {
     Context context = activity != null ? activity : application;
 
     RouteRequest request = RouteRequest.create(requestCode, path);
-    Chain chain = RealChain.newChain(routeMap, context, interceptorAll, routeInterceptors, request);
+    Chain chain = RealChain.newChain(routeMap, context, fragment,interceptorAll, routeInterceptors, request);
 
     chain.onProcess();
   }

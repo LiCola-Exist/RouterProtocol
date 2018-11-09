@@ -1,6 +1,7 @@
 package com.licola.route.api;
 
 import android.app.Activity;
+import android.support.v4.app.Fragment;
 
 /**
  * 路由对外暴露的api接口
@@ -18,8 +19,14 @@ public interface Api {
 
   void navigation(Activity activity, int requestCode, Interceptor interceptor);
 
+  void navigation(Fragment fragment, int requestCode, Interceptor interceptor);
+
   void navigation(String path, Activity activity, int requestCode);
 
+  void navigation(String path, Fragment fragment, int requestCode);
+
   void navigation(String path, Activity activity, int requestCode, Interceptor interceptor);
+
+  void navigation(String path, Fragment fragment, int requestCode, Interceptor interceptor);
 
 }

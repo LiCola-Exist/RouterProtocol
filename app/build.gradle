@@ -33,7 +33,7 @@ android {
     }
 
     testOptions {
-       //配置测试环境的 not mock问题
+        //配置测试环境的 not mock问题
         unitTests.returnDefaultValues = true
     }
 }

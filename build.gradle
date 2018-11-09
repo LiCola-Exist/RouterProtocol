@@ -46,7 +46,7 @@ ext {
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 
     base = [
-            compileSdkVersion: 28,
+            compileSdkVersion: 27,
             minSdkVersion    : 17,
             targetSdkVersion : 23,
             versionCode      : 1,
@@ -54,7 +54,7 @@ ext {
             applicationId    : "com.licola.model.routerprotocol"
     ]
 
-    supportLibraryVersion = '28.0.0'
+    supportLibraryVersion = '27.1.1'
 
     reverseSuperVersion = "1.2.0"
     routerVersion = "1.1.6"

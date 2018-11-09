@@ -3,6 +3,7 @@ package com.licola.route.api;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteEmptyResponseException;
 import java.util.List;
@@ -17,6 +18,7 @@ class RealChain implements Chain {
   private Map<String, RouteMeta> routeMap;
 
   private Context context;
+  private Fragment fragment;
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
@@ -65,7 +67,9 @@ class RealChain implements Chain {
     }
   }
 
-  static Chain newChain(Map<String, RouteMeta> routeMap, Context context,
+  static Chain newChain(Map<String, RouteMeta> routeMap,
+      Context context,
+      Fragment fragment,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
       RouteRequest request
@@ -73,15 +77,18 @@ class RealChain implements Chain {
     if (request == null) {
       throw new IllegalArgumentException("request==null");
     }
-    return new RealChain(routeMap, context, interceptors, routeInterceptors, request);
+    return new RealChain(routeMap, context, fragment,interceptors, routeInterceptors, request);
   }
 
-  private RealChain(Map<String, RouteMeta> routeMap, Context context,
+  private RealChain(Map<String, RouteMeta> routeMap,
+      Context context,
+      Fragment fragment,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
       @NonNull RouteRequest request) {
     this.routeMap = routeMap;
     this.context = context;
+    this.fragment=fragment;
     this.interceptors = interceptors;
     this.routeInterceptors = routeInterceptors;
     this.request = request;
@@ -93,6 +100,11 @@ class RealChain implements Chain {
 
   public Context getContext() {
     return context;
+  }
+
+  @Nullable
+  public Fragment getFragment() {
+    return fragment;
   }
 
   @NonNull
@@ -110,6 +122,6 @@ class RealChain implements Chain {
   @NonNull
   @Override
   public Chain clone() {
-    return newChain(routeMap, context, interceptors, routeInterceptors, request);
+    return newChain(routeMap, context,fragment, interceptors, routeInterceptors, request);
   }
 }

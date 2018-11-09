@@ -25,7 +25,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':route-annotation')
+    
     compileOnly rootProject.ext.dependencies["support-annotations"]
+    compileOnly rootProject.ext.dependencies["support-fragment"]
 
     testImplementation rootProject.ext.dependencies["junit"]
     androidTestImplementation rootProject.ext.dependencies["runner"]
