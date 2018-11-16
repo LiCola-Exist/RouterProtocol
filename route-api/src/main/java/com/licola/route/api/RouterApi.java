@@ -1,11 +1,13 @@
 package com.licola.route.api;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import com.licola.route.annotation.RouteMeta;
+import com.licola.route.api.source.ApplicationSource;
+import com.licola.route.api.source.FragmentSource;
+import com.licola.route.api.source.Source;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,28 +34,19 @@ public class RouterApi implements Api {
     this.routeMap = Collections.unmodifiableMap(loadRoute(builder.routeRoots));
   }
 
-  @NonNull
-  private HashMap<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
-    HashMap<String, RouteMeta> map = new HashMap<>();
-    for (RouteRoot routeRoot : routeRoots) {
-      routeRoot.load(map);
-    }
-    return map;
-  }
-
   @Override
   public void navigation(String path) {
     process(path, null, null, RouteRequest.STANDARD_REQUEST_CODE, null);
   }
 
   @Override
-  public void navigation(String path, Activity activity, int requestCode) {
+  public void navigation(String path, FragmentActivity activity, int requestCode) {
     process(path, activity, null, requestCode, null);
   }
 
   @Override
   public void navigation(String path, Fragment fragment, int requestCode) {
-    process(path, fragment.getActivity(), fragment, requestCode, null);
+    process(path, null, fragment, requestCode, null);
   }
 
   @Override
@@ -67,26 +60,46 @@ public class RouterApi implements Api {
   }
 
   @Override
-  public void navigation(Activity activity, int requestCode, Interceptor interceptor) {
+  public void navigation(FragmentActivity activity, int requestCode, Interceptor interceptor) {
     process(null, activity, null, requestCode, interceptor);
   }
 
   @Override
   public void navigation(Fragment fragment, int requestCode, Interceptor interceptor) {
-    process(null, fragment.getActivity(), fragment, requestCode, interceptor);
+    process(null, null, fragment, requestCode, interceptor);
   }
 
   @Override
-  public void navigation(String path, Activity activity, int requestCode, Interceptor interceptor) {
+  public void navigation(String path, FragmentActivity activity, int requestCode,
+      Interceptor interceptor) {
     process(path, activity, null, requestCode, interceptor);
   }
 
   @Override
   public void navigation(String path, Fragment fragment, int requestCode, Interceptor interceptor) {
-    process(path, fragment.getActivity(), fragment, requestCode, interceptor);
+    process(path, null, fragment, requestCode, interceptor);
   }
 
-  private void process(String path, Activity activity, Fragment fragment, int requestCode,
+  @NonNull
+  private HashMap<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
+    HashMap<String, RouteMeta> map = new HashMap<>();
+    for (RouteRoot routeRoot : routeRoots) {
+      routeRoot.load(map);
+    }
+    return map;
+  }
+
+  private Source createSource(FragmentActivity activity, Fragment fragment) {
+
+    if (activity != null) {
+      return new FragmentSource(activity, fragment);
+    } else if (fragment != null) {
+      return new FragmentSource(fragment.getActivity(), fragment);
+    }
+    return new ApplicationSource(application);
+  }
+
+  private void process(String path, FragmentActivity activity, Fragment fragment, int requestCode,
       Interceptor interceptor) {
     if (Utils.isEmpty(path) && interceptor == null) {
       throw new IllegalArgumentException(
@@ -100,10 +113,10 @@ public class RouterApi implements Api {
     }
     interceptorAll.addAll(interceptors);
 
-    Context context = activity != null ? activity : application;
+    Source source = createSource(activity, fragment);
 
     RouteRequest request = RouteRequest.create(requestCode, path);
-    Chain chain = RealChain.newChain(routeMap, context, fragment,interceptorAll, routeInterceptors, request);
+    Chain chain = RealChain.newChain(routeMap, source, interceptorAll, routeInterceptors, request);
 
     chain.onProcess();
   }

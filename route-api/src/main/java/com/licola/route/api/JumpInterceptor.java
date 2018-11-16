@@ -1,17 +1,10 @@
 package com.licola.route.api;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteConfigError;
+import com.licola.route.api.source.Source;
 import java.util.Map;
 
 /**
@@ -24,8 +17,8 @@ public class JumpInterceptor implements Interceptor {
     RealChain realChain = (RealChain) chain;
 
     Map<String, RouteMeta> routeMap = realChain.getRouteMap();
-    Context context = realChain.getContext();
-    Fragment fragment = realChain.getFragment();
+
+    Source source = realChain.getSource();
 
     RouteRequest request = realChain.getRequest();
     if (request == null) {
@@ -45,7 +38,7 @@ public class JumpInterceptor implements Interceptor {
     String requestPath = request.getOriginalPath();
     String redirectPath = request.getRedirectPath();
 
-    if (isResolveNotDeclareIntent(context, intent)) {
+    if (source.isResolveNotDeclareIntent(intent)) {
       boolean isRedirect = !Utils.isEmpty(requestPath) || !Utils.isEmpty(redirectPath);
       response = RouteResponse.createNotDeclare(intent, requestCode, isRedirect);
     } else {
@@ -73,42 +66,15 @@ public class JumpInterceptor implements Interceptor {
         intent = new Intent();
         request.setIntent(intent);
       }
-      intent.setClass(context, target);
+      intent.setClass(source.getContext(), target);
 
       response = RouteResponse
           .createDeclare(intent, requestCode, path, meta, !Utils.isEmpty(redirectPath));
     }
 
-    if (context instanceof Application) {
-      handlerApplicationStartFlag(intent);
-      context.startActivity(intent);
-    } else if (context instanceof Activity) {
-      if (fragment != null && context instanceof FragmentActivity) {
-        ((FragmentActivity) context).startActivityFromFragment(fragment, intent, requestCode);
-      } else {
-        ((Activity) context).startActivityForResult(intent, requestCode);
-      }
-    }
+    source.startActivity(intent, requestCode);
+
     chain.onProcess(response);
-  }
-
-  private void handlerApplicationStartFlag(Intent intent) {
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-  }
-
-  /**
-   * 该Intent能否被PackageManager隐式解析 如通过 setAction() 设置，使得能够被外部解析
-   *
-   * @return true:能够被隐式解析
-   */
-  private static boolean isResolveNotDeclareIntent(Context context, @Nullable Intent intent) {
-    if (intent == null) {
-      return false;
-    }
-
-    ResolveInfo resolveInfo = context.getPackageManager()
-        .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-    return resolveInfo != null;
   }
 
 
