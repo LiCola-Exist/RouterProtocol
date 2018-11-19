@@ -6,6 +6,8 @@ dependencies {
     implementation project(':route-annotation')
     implementation rootProject.ext.dependencies["auto-service"]
     implementation rootProject.ext.dependencies["javapoet"]
+
+    testImplementation rootProject.ext.dependencies["junit"]
 }
 
 sourceCompatibility = rootProject.sourceCompatibilityVersion

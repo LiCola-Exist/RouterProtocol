@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by LiCola on 2018/7/5.
@@ -81,12 +83,25 @@ public class RouterApi implements Api {
   }
 
   @NonNull
-  private HashMap<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
-    HashMap<String, RouteMeta> map = new HashMap<>();
+  private Map<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
+    HashMap<String, RouteMeta> totalMap = new HashMap<>();
     for (RouteRoot routeRoot : routeRoots) {
-      routeRoot.load(map);
+      Map<String, RouteMeta> routeMetaMap = routeRoot.load();
+      if (Utils.isEmpty(routeMetaMap)) {
+        continue;
+      }
+
+      for (Entry<String, RouteMeta> entry : routeMetaMap.entrySet()) {
+        String key = entry.getKey();
+        RouteMeta newValue = entry.getValue();
+        RouteMeta oldValue = totalMap.put(key, newValue);
+        if (oldValue != null) {
+          throw new IllegalArgumentException(
+              String.format(Locale.CHINA, "path=%s,被%s和%s重复定义", key, newValue, oldValue));
+        }
+      }
     }
-    return map;
+    return totalMap;
   }
 
   private Source createSource(FragmentActivity activity, Fragment fragment) {

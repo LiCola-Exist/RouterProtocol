@@ -8,5 +8,5 @@ import java.util.Map;
  */
 public interface RouteRoot {
 
-  void load(Map<String, RouteMeta> map);
+  Map<String, RouteMeta> load();
 }

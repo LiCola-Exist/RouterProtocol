@@ -41,7 +41,7 @@ public class RouteResponse {
    * @return true:重定向方式导航，即该RouteResponse的导航目标和RouteRequest导航目标不一致 false:其他情况
    */
   public static boolean isRedirect(RouteResponse response) {
-    return response != null && response.isRedirect;
+    return isSuccess(response) && response.isRedirect;
   }
 
   /**
@@ -50,7 +50,7 @@ public class RouteResponse {
    * @return true:显式启动，有明确的targetPath和meta信息
    */
   public static boolean isDeclare(RouteResponse response) {
-    return response != null && response.isDeclare;
+    return isSuccess(response) && response.isDeclare;
   }
 
   /**
@@ -103,14 +103,6 @@ public class RouteResponse {
   @Nullable
   public RouteMeta getMeta() {
     return meta;
-  }
-
-  public boolean isRedirect() {
-    return isRedirect;
-  }
-
-  public boolean isDeclare() {
-    return isDeclare;
   }
 
   @Override

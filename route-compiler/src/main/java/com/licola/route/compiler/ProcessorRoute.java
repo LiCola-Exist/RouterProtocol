@@ -32,10 +32,8 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 
@@ -45,17 +43,17 @@ import javax.lang.model.element.Modifier;
 
 public class ProcessorRoute {
 
-  private Set<? extends Element> elements;
+  private List<? extends Element> elements;
   private String packName;
   private String className;
   private String moduleName;
 
-  public static ProcessorRoute build(Set<? extends Element> elements,
+  public static ProcessorRoute build(List<? extends Element> elements,
       String packName, String className, String moduleName) {
     return new ProcessorRoute(elements, packName, className, moduleName);
   }
 
-  public ProcessorRoute(Set<? extends Element> elements, String packName,
+  public ProcessorRoute(List<? extends Element> elements, String packName,
       String className, String moduleName) {
     this.elements = elements;
     this.packName = packName;
@@ -64,13 +62,6 @@ public class ProcessorRoute {
   }
 
   TypeSpec process() {
-    if (CheckUtils.isEmpty(elements)) {
-      return null;
-    }
-
-    if (CheckUtils.isEmpty(className)) {
-      return null;
-    }
 
     //定义类
     TypeSpec.Builder classSpecBuild = TypeSpec.classBuilder(className)
@@ -96,15 +87,18 @@ public class ProcessorRoute {
     MethodSpec.Builder methodBuild = MethodSpec.methodBuilder(ROUTE_METHOD_LOAD)
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterizedTypeName.get(Map.class, String.class, RouteMeta.class),
-            ROUTE_METHOD_LOAD_PARAMETER)
-        .returns(void.class);
+        .returns(ParameterizedTypeName.get(Map.class, String.class, RouteMeta.class));
 
-    for (Element element : sortElementByName(elements)) {
-      addClassAndAnnotationField(moduleName, ROUTE_FIELD_ROUTE_MODULE_NAME, element, classSpecBuild,
+    methodBuild
+        .addStatement("$T<String,RouteMeta> $L=new $T<>()", ClassName.get("java.util", "Map"),
+            ROUTE_METHOD_LOAD_PARAMETER,
+            ClassName.get("java.util", "HashMap"));
+    for (Element element : elements) {
+      addClassAndAnnotationField(moduleName, element, classSpecBuild,
           annotationBuilder,
           methodBuild);
     }
+    methodBuild.addStatement("return $L", ROUTE_METHOD_LOAD_PARAMETER);
 
     classInnerRoute
         .addMethod(methodBuild.build());
@@ -148,36 +142,15 @@ public class ProcessorRoute {
     return classSpecBuild.build();
   }
 
-  private List<? extends Element> sortElementByName(Set<? extends Element> elements) {
-    ArrayList<? extends Element> sortList = new ArrayList<>(elements);
-    sortList.sort(new Comparator<Element>() {
-      @Override
-      public int compare(Element e1, Element e2) {
-        String name1 = fetchName(e1);
-        String name2 = fetchName(e2);
-        return name1.compareTo(name2);
-      }
-    });
-    return sortList;
-  }
 
-  private static String fetchName(Element element) {
-
-    String nameValue = element.getAnnotation(Route.class).path();
-
-    if (CheckUtils.isEmpty(nameValue)) {
-      return element.getSimpleName().toString();
-    } else {
-      return nameValue;
-    }
-  }
-
-  private void addClassAndAnnotationField(String moduleNameValue, String moduleName,
+  private void addClassAndAnnotationField(String moduleNameValue,
       Element element,
       Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
-    String elementName = Utils.classNameToUnderline(element.getSimpleName().toString());
-    String nameValue = fetchName(element);
+    String className = element.getSimpleName().toString();
+    String elementName = Utils.classNameToUnderline(className);
+    String path = element.getAnnotation(Route.class).path();
+    String nameValue = CheckUtils.isEmpty(path) ? className : path;
 
     //类中 添加静态变量
     classSpecBuild.addField(FieldSpec.builder(String.class, elementName)
@@ -195,7 +168,7 @@ public class ProcessorRoute {
             moduleNameValue, PATH_SEPARATOR, nameValue,
             RouteMeta.class, MoreElements.asType(element).getQualifiedName().toString(),
             elementName,
-            moduleName);
+            ROUTE_FIELD_ROUTE_MODULE_NAME);
   }
 
 

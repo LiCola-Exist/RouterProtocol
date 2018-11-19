@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -33,7 +34,14 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_nest);
+    LLogger.d(this, savedInstanceState, fragment);
+  }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    LLogger.d(this);
   }
 
   /**
@@ -77,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
    */
   public void onNavigationThirdClick(View view) {
     Api api = new Builder(getApplication())
+        .addRouteRoot(new RouteApp.Route())
         .addRouteRoot(new MyRoute.Route())
         .build();
 
@@ -232,7 +241,8 @@ public class MainActivity extends AppCompatActivity {
         RouteRequest request = chain.getRequest();
         request.notifyIntent().setAction(Intent.ACTION_DIAL)
             .setData(Uri.parse("tel:17600000001"));
-        chain.onProcess();
+        RouteResponse response = chain.onProcess();
+        LLogger.d(RouteResponse.isDeclare(response));
       }
     });
   }
@@ -240,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    LLogger.d(requestCode,resultCode,data);
+    LLogger.d(this,requestCode, resultCode, data);
     Bundle extras = data.getExtras();
     if (extras != null) {
       LLogger.d("带的参数的Result,Intent数据非空");

@@ -2,6 +2,7 @@ package com.licola.model.routerprotocol;
 
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.RouteRoot;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -15,15 +16,15 @@ import java.util.Map;
  */
 public class MyRoute {
 
-  public static final String MODULE_NAME = "other";
+  public static final String MODULE_NAME = "second";
 
   public static final String THIRD_ACTIVITY = "third";
 
   public static class Route implements RouteRoot {
 
     @Override
-    public void load(Map<String, RouteMeta> map) {
-      map.put("other/third", RouteMeta
+    public Map<String, RouteMeta> load() {
+      return Collections.singletonMap("other/third", RouteMeta
           .create(com.licola.model.module.third.ThirdActivity.class, THIRD_ACTIVITY, MODULE_NAME));
     }
   }

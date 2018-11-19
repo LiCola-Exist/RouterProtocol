@@ -5,7 +5,10 @@ package com.licola.route.annotation;
  */
 public class RoutePath {
 
+  private static final char PATH_SEPARATOR = '/';
+
   public static String makePath(String module, String target) {
-    return module + "/" + target;
+    String joinPath = module + PATH_SEPARATOR + target;
+    return joinPath.intern();
   }
 }
