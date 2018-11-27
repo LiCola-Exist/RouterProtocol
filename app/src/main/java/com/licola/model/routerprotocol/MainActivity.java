@@ -25,7 +25,7 @@ import com.licola.route.api.RouterApi.Builder;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteBreakException;
 
-@Route(path = "main")
+@Route(path = "main", description = "首页界面")
 public class MainActivity extends AppCompatActivity {
 
   private static final int REQUEST_CODE = 100;
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    LLogger.d(this,requestCode, resultCode, data);
+    LLogger.d(this, requestCode, resultCode, data);
     Bundle extras = data.getExtras();
     if (extras != null) {
       LLogger.d("带的参数的Result,Intent数据非空");

@@ -61,12 +61,17 @@ public class ProcessorRoute {
 
   TypeSpec process() {
 
+    int size = elements.size();
+
     //定义类
+    FieldSpec moduleField = FieldSpec.builder(String.class, ROUTE_FIELD_ROUTE_MODULE_NAME)
+        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+        .initializer("$S", moduleName)
+        .addJavadoc("模块名\n")
+        .build();
+
     TypeSpec.Builder classSpecBuild = TypeSpec.classBuilder(className)
-        .addField(FieldSpec.builder(String.class, ROUTE_FIELD_ROUTE_MODULE_NAME)
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-            .initializer("$S", moduleName)
-            .build());
+        .addField(moduleField);
 
     //定义内部Root类
     TypeSpec.Builder classInnerRoute = TypeSpec.classBuilder(ROUTE_CLASS_INNER_ROUTE)
@@ -88,9 +93,12 @@ public class ProcessorRoute {
         .returns(ParameterizedTypeName.get(List.class, RouteMeta.class));
 
     methodBuild
-        .addStatement("$T<RouteMeta> $L=new $T<>()", ClassName.get("java.util", "List"),
+        .addStatement("$T<$T> $L=new $T<>($L)", ClassName.get("java.util", "List"),
+            RouteMeta.class,
             ROUTE_METHOD_LOAD_PARAMETER,
-            ClassName.get("java.util", "ArrayList"));
+            ClassName.get("java.util", "ArrayList"),
+            size
+        );
     for (Element element : elements) {
       addClassAndAnnotationField(
           element,
@@ -145,18 +153,24 @@ public class ProcessorRoute {
 
   private void addClassAndAnnotationField(
       Element element,
-      Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
+      Builder classSpecBuild,
+      AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
     String className = element.getSimpleName().toString();
     String elementName = Utils.classNameToUnderline(className);
     String path = element.getAnnotation(Route.class).path();
-    String nameValue = CheckUtils.isEmpty(path) ? className : path;
+    String description = element.getAnnotation(Route.class).description();
 
     //类中 添加静态变量
-    classSpecBuild.addField(FieldSpec.builder(String.class, elementName)
+    FieldSpec.Builder fieldBuilder = FieldSpec.builder(String.class, elementName)
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-        .initializer("$S", nameValue)
-        .build());
+        .initializer("$S", path);
+
+    if (!CheckUtils.isEmpty(description)) {
+      fieldBuilder.addJavadoc(description + "\n");
+    }
+
+    classSpecBuild.addField(fieldBuilder.build());
 
     //注释中 添加字段
     annotationBuilder.addMember("value", "$L", elementName);
