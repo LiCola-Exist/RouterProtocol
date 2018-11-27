@@ -1,6 +1,7 @@
 package com.licola.route.api;
 
 import android.app.Application;
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -29,7 +30,7 @@ public class RouterApi implements Api {
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
-  RouterApi(Builder builder) {
+  private RouterApi(Builder builder) {
     this.application = builder.application;
     this.interceptors = Collections.unmodifiableList(builder.interceptors);
     this.routeInterceptors = Collections.unmodifiableList(builder.routeInterceptors);
@@ -86,18 +87,19 @@ public class RouterApi implements Api {
   private Map<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
     HashMap<String, RouteMeta> totalMap = new HashMap<>();
     for (RouteRoot routeRoot : routeRoots) {
-      Map<String, RouteMeta> routeMetaMap = routeRoot.load();
-      if (Utils.isEmpty(routeMetaMap)) {
+
+      List<RouteMeta> metas = routeRoot.load();
+
+      if (Utils.isEmpty(metas)){
         continue;
       }
 
-      for (Entry<String, RouteMeta> entry : routeMetaMap.entrySet()) {
-        String key = entry.getKey();
-        RouteMeta newValue = entry.getValue();
-        RouteMeta oldValue = totalMap.put(key, newValue);
+      for (RouteMeta meta : metas) {
+        String key = meta.getPath();
+        RouteMeta oldValue = totalMap.put(key, meta);
         if (oldValue != null) {
           throw new IllegalArgumentException(
-              String.format(Locale.CHINA, "path=%s,被%s和%s重复定义", key, newValue, oldValue));
+              String.format(Locale.CHINA, "path=%s,被%s和%s重复定义", key, meta, oldValue));
         }
       }
     }
@@ -118,11 +120,10 @@ public class RouterApi implements Api {
       Interceptor interceptor) {
     if (Utils.isEmpty(path) && interceptor == null) {
       throw new IllegalArgumentException(
-          "path and interceptor cannot be null/empty at the same time ");
+          "path and interceptor cannot be empty/null at the same time ");
     }
 
-    int size = interceptors.size() + 1;
-    List<Interceptor> interceptorAll = new ArrayList<>(size);
+    List<Interceptor> interceptorAll = new ArrayList<>(interceptors.size() + 1);
     if (interceptor != null) {
       interceptorAll.add(interceptor);
     }

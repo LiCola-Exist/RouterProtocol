@@ -89,7 +89,7 @@ public class ProcessorRouterRoot extends AbstractProcessor {
           + "        }");
     }
 
-    checkPathRepeat(elements);
+    checkPathValid(elements);
 
     final String className = ROUTE_CLASS_PREFIX + Utils.checkAndUpperFirstChar(moduleName);
 
@@ -145,15 +145,20 @@ public class ProcessorRouterRoot extends AbstractProcessor {
     sortList.sort(new Comparator<Element>() {
       @Override
       public int compare(Element e1, Element e2) {
-        String name1 = fetchPath(e1);
-        String name2 = fetchPath(e2);
+        String name1 = fetchKey(e1);
+        String name2 = fetchKey(e2);
         return name1.compareTo(name2);
       }
+
+      private String fetchKey(Element element) {
+        return element.getAnnotation(Route.class).path();
+      }
+
     });
     return sortList;
   }
 
-  private void checkPathRepeat(Set<? extends Element> elements) {
+  private void checkPathValid(Set<? extends Element> elements) {
 
     Map<String, Element> paths = new HashMap<>(elements.size());
 
@@ -168,14 +173,15 @@ public class ProcessorRouterRoot extends AbstractProcessor {
     }
   }
 
-  private static String fetchPath(Element element) {
+  private String fetchPath(Element element) {
 
-    String nameValue = element.getAnnotation(Route.class).path();
+    String path = element.getAnnotation(Route.class).path();
 
-    if (CheckUtils.isEmpty(nameValue)) {
-      return element.getSimpleName().toString();
-    } else {
-      return nameValue;
+    if (CheckUtils.isEmpty(path)) {
+      error("path路径不能为空");
+      throw new IllegalArgumentException(
+          String.format(Locale.CHINA, "@Route注解path不能为空,%s", element));
     }
+    return path;
   }
 }

@@ -1,7 +1,6 @@
 package com.licola.route.compiler;
 
 import static com.licola.route.compiler.Constants.PACKAGE_API;
-import static com.licola.route.compiler.Constants.PATH_SEPARATOR;
 import static com.licola.route.compiler.Constants.ROUTE_ANNOTATION_PROTOCOL;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_API;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_ROUTE;
@@ -33,7 +32,6 @@ import com.squareup.javapoet.TypeSpec.Builder;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 
@@ -87,14 +85,16 @@ public class ProcessorRoute {
     MethodSpec.Builder methodBuild = MethodSpec.methodBuilder(ROUTE_METHOD_LOAD)
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
-        .returns(ParameterizedTypeName.get(Map.class, String.class, RouteMeta.class));
+        .returns(ParameterizedTypeName.get(List.class, RouteMeta.class));
 
     methodBuild
-        .addStatement("$T<String,RouteMeta> $L=new $T<>()", ClassName.get("java.util", "Map"),
+        .addStatement("$T<RouteMeta> $L=new $T<>()", ClassName.get("java.util", "List"),
             ROUTE_METHOD_LOAD_PARAMETER,
-            ClassName.get("java.util", "HashMap"));
+            ClassName.get("java.util", "ArrayList"));
     for (Element element : elements) {
-      addClassAndAnnotationField(moduleName, element, classSpecBuild,
+      addClassAndAnnotationField(
+          element,
+          classSpecBuild,
           annotationBuilder,
           methodBuild);
     }
@@ -143,7 +143,7 @@ public class ProcessorRoute {
   }
 
 
-  private void addClassAndAnnotationField(String moduleNameValue,
+  private void addClassAndAnnotationField(
       Element element,
       Builder classSpecBuild, AnnotationSpec.Builder annotationBuilder,
       MethodSpec.Builder methodBuild) {
@@ -161,14 +161,18 @@ public class ProcessorRoute {
     //注释中 添加字段
     annotationBuilder.addMember("value", "$L", elementName);
 
+    String fullPath = RoutePath.makePath(moduleName, path);
+
     //方法中 添加表达式
-    methodBuild
-        .addStatement(
-            ROUTE_METHOD_LOAD_PARAMETER + ".put(\"$L$L$L\",$T.create($L.class,$L,$L))",
-            moduleNameValue, PATH_SEPARATOR, nameValue,
-            RouteMeta.class, MoreElements.asType(element).getQualifiedName().toString(),
-            elementName,
-            ROUTE_FIELD_ROUTE_MODULE_NAME);
+    methodBuild.addStatement(
+        "$L.add($T.create($S,$L,$L,$L.class))",
+        ROUTE_METHOD_LOAD_PARAMETER,
+        RouteMeta.class,
+        fullPath,
+        elementName,
+        ROUTE_FIELD_ROUTE_MODULE_NAME,
+        MoreElements.asType(element).getQualifiedName().toString()
+    );
   }
 
 

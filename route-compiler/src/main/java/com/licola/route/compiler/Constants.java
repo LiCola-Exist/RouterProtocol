@@ -27,7 +27,7 @@ public class Constants {
   static final String ROUTE_ANNOTATION_CODE = "Code";
 
   static final String ROUTE_METHOD_LOAD = "load";
-  static final String ROUTE_METHOD_LOAD_PARAMETER = "map";
+  static final String ROUTE_METHOD_LOAD_PARAMETER = "metas";
   static final String ROUTE_METHOD_NAVIGATION = "navigation";
   static final String ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET = "target";
   static final String ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR = "interceptor";

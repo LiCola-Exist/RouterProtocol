@@ -20,6 +20,8 @@ class RealChain implements Chain {
   private List<Interceptor> interceptors;
   private List<RouteInterceptor> routeInterceptors;
 
+  private int index;
+
   @NonNull
   private RouteRequest request;
   @Nullable
@@ -30,7 +32,6 @@ class RealChain implements Chain {
     return onProcess(null);
   }
 
-  private int index = 0;
 
   @Override
   public RouteResponse onProcess(RouteResponse newResponse) {
@@ -53,7 +54,6 @@ class RealChain implements Chain {
       }
     }
     return response;
-
   }
 
   @Override
@@ -74,7 +74,7 @@ class RealChain implements Chain {
     if (request == null) {
       throw new IllegalArgumentException("request==null");
     }
-    return new RealChain(routeMap, source,interceptors, routeInterceptors, request);
+    return new RealChain(routeMap, source, interceptors, routeInterceptors, request);
   }
 
   private RealChain(Map<String, RouteMeta> routeMap,
@@ -83,10 +83,11 @@ class RealChain implements Chain {
       List<RouteInterceptor> routeInterceptors,
       @NonNull RouteRequest request) {
     this.routeMap = routeMap;
-    this.source=source;
+    this.source = source;
     this.interceptors = interceptors;
     this.routeInterceptors = routeInterceptors;
     this.request = request;
+    this.index = 0;
   }
 
   public Map<String, RouteMeta> getRouteMap() {

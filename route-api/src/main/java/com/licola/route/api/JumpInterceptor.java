@@ -2,6 +2,7 @@ package com.licola.route.api;
 
 import android.content.Intent;
 import com.licola.route.annotation.RouteMeta;
+import com.licola.route.api.exceptions.RouteBadChainException;
 import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.exceptions.RouteConfigError;
 import com.licola.route.api.source.Source;
@@ -14,6 +15,11 @@ public class JumpInterceptor implements Interceptor {
 
   @Override
   public void intercept(Chain chain) {
+    if (!(chain instanceof RealChain)) {
+      chain.onBreak(new RouteBadChainException("错误的Chain链对象调用"));
+      return;
+    }
+
     RealChain realChain = (RealChain) chain;
 
     Map<String, RouteMeta> routeMap = realChain.getRouteMap();
@@ -21,10 +27,6 @@ public class JumpInterceptor implements Interceptor {
     Source source = realChain.getSource();
 
     RouteRequest request = realChain.getRequest();
-    if (request == null) {
-      chain.onBreak(new RouteBadRequestException("RouteRequest == null"));
-      return;
-    }
 
     if (realChain.getResponse() != null) {
       chain.onProcess();
@@ -39,7 +41,7 @@ public class JumpInterceptor implements Interceptor {
     String redirectPath = request.getRedirectPath();
 
     if (source.isResolveNotDeclareIntent(intent)) {
-      boolean isRedirect = !Utils.isEmpty(requestPath) || !Utils.isEmpty(redirectPath);
+      boolean isRedirect = !Utils.isEmpty(redirectPath);
       response = RouteResponse.createNotDeclare(intent, requestCode, isRedirect);
     } else {
       if (Utils.isEmpty(routeMap)) {

@@ -17,5 +17,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Route {
 
-  String path() default "";
+  String path();
+
+  String description() default "";
 }

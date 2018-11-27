@@ -1,6 +1,7 @@
 package com.licola.route.api;
 
 import com.licola.route.annotation.RouteMeta;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -8,5 +9,5 @@ import java.util.Map;
  */
 public interface RouteRoot {
 
-  Map<String, RouteMeta> load();
+  List<RouteMeta> load();
 }

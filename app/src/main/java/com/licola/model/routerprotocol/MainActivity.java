@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
               //如重定向到版本检测页 引导下载新版本
               request.notifyPath("app/user/login");
               clone.onProcess();
+              return true;
             }
             return false;
           }

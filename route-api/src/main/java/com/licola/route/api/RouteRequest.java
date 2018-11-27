@@ -30,7 +30,7 @@ public class RouteRequest {
   }
 
   private RouteRequest(int requestCode,
-      String originalPath) {
+      @Nullable String originalPath) {
     this.requestCode = requestCode;
     this.originalPath = originalPath;
   }
