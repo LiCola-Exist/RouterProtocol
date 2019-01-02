@@ -3,6 +3,7 @@ package com.licola.route.api.source;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 /**
  * @author LiCola
@@ -22,8 +23,8 @@ public class ApplicationSource extends Source {
   }
 
   @Override
-  public void startActivity(Intent intent, int requestCode) {
+  public void startActivity(Intent intent, int requestCode, Bundle bundle) {
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    application.startActivity(intent);
+    application.startActivity(intent, bundle);
   }
 }

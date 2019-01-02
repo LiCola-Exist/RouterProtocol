@@ -1,11 +1,13 @@
 package com.licola.route.api;
 
+import android.app.Activity;
 import android.app.Application;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import com.licola.route.annotation.RouteMeta;
+import com.licola.route.api.source.ActivitySource;
 import com.licola.route.api.source.ApplicationSource;
 import com.licola.route.api.source.FragmentSource;
 import com.licola.route.api.source.Source;
@@ -43,7 +45,7 @@ public class RouterApi implements Api {
   }
 
   @Override
-  public void navigation(String path, FragmentActivity activity, int requestCode) {
+  public void navigation(String path, Activity activity, int requestCode) {
     process(path, activity, null, requestCode, null);
   }
 
@@ -63,7 +65,7 @@ public class RouterApi implements Api {
   }
 
   @Override
-  public void navigation(FragmentActivity activity, int requestCode, Interceptor interceptor) {
+  public void navigation(Activity activity, int requestCode, Interceptor interceptor) {
     process(null, activity, null, requestCode, interceptor);
   }
 
@@ -73,7 +75,7 @@ public class RouterApi implements Api {
   }
 
   @Override
-  public void navigation(String path, FragmentActivity activity, int requestCode,
+  public void navigation(String path, Activity activity, int requestCode,
       Interceptor interceptor) {
     process(path, activity, null, requestCode, interceptor);
   }
@@ -106,17 +108,18 @@ public class RouterApi implements Api {
     return totalMap;
   }
 
-  private Source createSource(FragmentActivity activity, Fragment fragment) {
+  private Source createSource(Activity activity, Fragment fragment) {
 
-    if (activity != null) {
-      return new FragmentSource(activity, fragment);
-    } else if (fragment != null) {
-      return new FragmentSource(fragment.getActivity(), fragment);
+    if (fragment!=null){
+      return new FragmentSource(fragment);
+    }else if (activity!=null){
+      return new ActivitySource(activity);
+    }else {
+      return new ApplicationSource(application);
     }
-    return new ApplicationSource(application);
   }
 
-  private void process(String path, FragmentActivity activity, Fragment fragment, int requestCode,
+  private void process(String path, Activity activity, Fragment fragment, int requestCode,
       Interceptor interceptor) {
     if (Utils.isEmpty(path) && interceptor == null) {
       throw new IllegalArgumentException(

@@ -2,11 +2,11 @@ package com.licola.route.api;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
- *
  * 路由请求体的封装
  *
  * @author LiCola
@@ -23,6 +23,8 @@ public class RouteRequest {
   private String redirectPath;
   @Nullable
   private Intent intent;
+  @Nullable
+  private Bundle bundle;
 
   public static RouteRequest create(int requestCode,
       String path) {
@@ -36,10 +38,7 @@ public class RouteRequest {
   }
 
   /**
-   * 返回Intent实例
-   * 建议使用该方法得到的Intent
-   * 1:添加extra附加参数
-   * 2:设置flag标识
+   * 返回Intent实例 使用该方法得到的Intent，加入一些参数 1:添加extra附加参数 2:设置flag标识
    */
   public Intent putArgs() {
     if (this.intent == null) {
@@ -48,14 +47,34 @@ public class RouteRequest {
     return intent;
   }
 
+  public Intent putArgs(Intent intent) {
+    this.intent = intent;
+    return intent;
+  }
+
   /**
-   * 更新Intent
-   * 建议使用该方法返回的Intent
-   * 1:这是action实现隐式启动
+   * 更新Intent 建议使用该方法返回的Intent
    */
   public Intent notifyIntent() {
     this.intent = new Intent();
     return intent;
+  }
+
+  public Bundle putBundle() {
+    if (this.bundle == null) {
+      this.bundle = new Bundle();
+    }
+    return bundle;
+  }
+
+  public Bundle putBundle(Bundle bundle) {
+    this.bundle = bundle;
+    return bundle;
+  }
+
+  public Bundle notifyBundle() {
+    this.bundle = new Bundle();
+    return bundle;
   }
 
 
@@ -106,6 +125,11 @@ public class RouteRequest {
   @Nullable
   Intent getIntent() {
     return intent;
+  }
+
+  @Nullable
+  public Bundle getBundle() {
+    return bundle;
   }
 
   void setIntent(@NonNull Intent intent) {

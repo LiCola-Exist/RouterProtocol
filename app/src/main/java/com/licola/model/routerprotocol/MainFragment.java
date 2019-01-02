@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import com.licola.llogger.LLogger;
 import com.licola.route.RouteApp;
 import com.licola.route.RouteApp.Route;
@@ -61,6 +62,7 @@ public class MainFragment extends Fragment {
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    Toast.makeText(getContext(),"Fragment收到结果" ,Toast.LENGTH_SHORT ).show();
     LLogger.d(requestCode, resultCode, data);
   }
 }

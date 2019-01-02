@@ -258,6 +258,31 @@ public class MainActivity extends AppCompatActivity {
     });
   }
 
+  public void onNavigationAnimationClick(View view) {
+    Intent intent = new Intent(this, AnimationSharedActivity.class);
+    intent.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
+    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
+        .makeSceneTransitionAnimation(this, view, "cover");
+    final Bundle options = optionsCompat.toBundle();
+
+    final Api api = new Builder(getApplication())
+        .addRouteRoot(new RouteApp.Route())
+        .build();
+
+    RouteApp.Api appApi = new RouteApp.Api(api);
+    appApi.navigation(RouteApp.ANIMATION_SHARED_ACTIVITY, MainActivity.this,
+        RouteRequest.STANDARD_REQUEST_CODE, new Interceptor() {
+          @Override
+          public void intercept(Chain chain) {
+            RouteRequest request = chain.getRequest();
+            Intent args = request.putArgs();
+            args.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
+            request.putBundle(options);
+            chain.onProcess();
+          }
+        });
+  }
+
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -265,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
     Bundle extras = data.getExtras();
     if (extras != null) {
       LLogger.d("带的参数的Result,Intent数据非空");
+//      Toast.makeText(this, "Activity收到结果", Toast.LENGTH_SHORT).show();
       for (String key : extras.keySet()) {
         LLogger.d(key, extras.get(key));
       }
@@ -273,12 +299,5 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  public void onNavigationAnimationClick(View view) {
-    Intent intent = new Intent(this, AnimationSharedActivity.class);
-    intent.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
-    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-        .makeSceneTransitionAnimation(this, view, "cover");
-    startActivity(intent, optionsCompat.toBundle());
 
-  }
 }

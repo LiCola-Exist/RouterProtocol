@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 /**
@@ -15,7 +16,7 @@ public abstract class Source {
 
   public abstract Context getContext();
 
-  public abstract void startActivity(Intent intent,int requestCode);
+  public abstract void startActivity(Intent intent, int requestCode, Bundle bundle);
 
 
   /**
@@ -28,8 +29,8 @@ public abstract class Source {
       return false;
     }
 
-    ResolveInfo resolveInfo = getContext().getPackageManager()
-        .resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+    PackageManager packageManager = getContext().getPackageManager();
+    ResolveInfo resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
     return resolveInfo != null;
   }
 }

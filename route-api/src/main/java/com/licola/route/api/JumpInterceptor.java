@@ -1,6 +1,7 @@
 package com.licola.route.api;
 
 import android.content.Intent;
+import android.os.Bundle;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadChainException;
 import com.licola.route.api.exceptions.RouteBadRequestException;
@@ -35,6 +36,7 @@ public class JumpInterceptor implements Interceptor {
 
     Intent intent = request.getIntent();
     int requestCode = request.getRequestCode();
+    Bundle bundle = request.getBundle();
     RouteResponse response;
 
     String requestPath = request.getOriginalPath();
@@ -74,7 +76,7 @@ public class JumpInterceptor implements Interceptor {
           .createDeclare(intent, requestCode, path, meta, !Utils.isEmpty(redirectPath));
     }
 
-    source.startActivity(intent, requestCode);
+    source.startActivity(intent, requestCode,bundle);
 
     chain.onProcess(response);
   }

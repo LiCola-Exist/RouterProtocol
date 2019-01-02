@@ -205,7 +205,7 @@ public class ProcessorRoute {
         .build();
 
     ParameterSpec parameterActivity = ParameterSpec
-        .builder(ClassName.get("android.support.v4.app", "FragmentActivity"),
+        .builder(ClassName.get("android.app", "Activity"),
             ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY)
         .build();
 
