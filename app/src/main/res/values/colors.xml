@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="colorPrimary">#3F51B5</color>
-  <color name="colorPrimaryDark">#303F9F</color>
-  <color name="colorAccent">#FF4081</color>
+
   <color name="white">#FFFFFFFF</color>
+  <color name="black">#000000</color>
+
+  <color name="blue">#2361BE</color>
+  <color name="blue_A87">#DE2361BE</color>
+  <color name="blue_A54">#8A2361BE</color>
+  <color name="blue_A32">#422361BE</color>
+  <color name="blue_A12">#1E2361BE</color>
+
 </resources>

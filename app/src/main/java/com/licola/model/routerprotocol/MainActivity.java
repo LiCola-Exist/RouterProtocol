@@ -1,12 +1,12 @@
 package com.licola.model.routerprotocol;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -34,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_nest);
-    LLogger.d(this, savedInstanceState, fragment);
   }
 
   @Override
@@ -226,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
 
   public void onNavigationNotDeclareClick(View view) {
-    Api api = new Builder(getApplication())
+    final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .openDebugLog()
         .build();
@@ -239,11 +237,23 @@ public class MainActivity extends AppCompatActivity {
     api.navigation(new Interceptor() {
       @Override
       public void intercept(Chain chain) {
+        //通过action 调起拨号
+//        RouteRequest request = chain.getRequest();
+//        request.notifyIntent().setAction(Intent.ACTION_DIAL)
+//            .setData(Uri.parse("tel:17600000001"));
+//        RouteResponse response = chain.onProcess();
+//        LLogger.d(RouteResponse.isDeclare(response));
+
+        //通过包名和类名 调起特定app 如微信
         RouteRequest request = chain.getRequest();
-        request.notifyIntent().setAction(Intent.ACTION_DIAL)
-            .setData(Uri.parse("tel:17600000001"));
+        Intent args = request.putArgs();
+        args.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+//        args.setComponent(new ComponentName("com.sina.weibo", "com.sina.weibo.SplashActivity"));
+//        args.setComponent(new ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity"));
+//        args.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));
+        args.setAction(Intent.ACTION_MAIN);
         RouteResponse response = chain.onProcess();
-        LLogger.d(RouteResponse.isDeclare(response));
+        LLogger.d(response);
       }
     });
   }
@@ -263,5 +273,12 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  public void onNavigationAnimationClick(View view) {
+    Intent intent = new Intent(this, AnimationSharedActivity.class);
+    intent.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
+    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
+        .makeSceneTransitionAnimation(this, view, "cover");
+    startActivity(intent, optionsCompat.toBundle());
 
+  }
 }

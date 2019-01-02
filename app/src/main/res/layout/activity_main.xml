@@ -71,5 +71,29 @@
       android:onClick="onNavigationNotDeclareClick"
       android:text="no-declare/非声明式的请求" />
 
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:padding="12dp"
+      android:background="@color/blue"
+      android:orientation="vertical">
+      <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="共享元素动画"
+        android:textColor="@color/white" />
+
+      <ImageView
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center"
+        android:onClick="onNavigationAnimationClick"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cover" />
+
+    </LinearLayout>
+
   </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
