@@ -10,7 +10,8 @@ import com.licola.route.api.source.Source;
 import java.util.Map;
 
 /**
- * Created by LiCola on 2018/7/5. 控制实际的跳转的 跳转拦截器
+ * Created by LiCola on 2018/7/5.
+ * 路由表内跳转拦截器
  */
 public class JumpInterceptor implements Interceptor {
 

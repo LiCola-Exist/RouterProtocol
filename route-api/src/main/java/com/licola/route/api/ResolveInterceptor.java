@@ -7,6 +7,8 @@ import com.licola.route.api.exceptions.RouteBadChainException;
 import com.licola.route.api.source.Source;
 
 /**
+ * 路由表外，应用解析跳转拦截器
+ *
  * @author LiCola
  * @date 2019/1/3
  */

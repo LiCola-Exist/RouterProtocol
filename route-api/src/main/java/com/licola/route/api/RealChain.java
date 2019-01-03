@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.exceptions.RouteBadRequestException;
-import com.licola.route.api.source.Source;
 import java.util.List;
 import java.util.Map;
 
@@ -26,15 +25,15 @@ class RealChain implements Chain {
 
   private RouteResponse response;
 
-  public void setResponse(RouteResponse response){
-    this.response=response;
+  public void setResponse(RouteResponse response) {
+    this.response = response;
   }
 
   @Nullable
   @Override
   public RouteResponse onProcess(RouteRequest request) {
 
-    this.request=request;
+    this.request = request;
 
     if (response != null) {
       //响应非空 表示成功 分发响应结果
@@ -46,10 +45,10 @@ class RealChain implements Chain {
       return response;
     }
 
-    if (index<interceptors.size()){
+    if (index < interceptors.size()) {
       Interceptor interceptor = interceptors.get(index++);
       interceptor.intercept(this);
-    }else {
+    } else {
       onBreak(new RouteBadRequestException("没有拦截器处理得到RouteResponse"));
     }
 

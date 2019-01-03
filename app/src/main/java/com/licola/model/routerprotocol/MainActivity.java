@@ -1,15 +1,16 @@
 package com.licola.model.routerprotocol;
 
+import android.app.ActivityOptions;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 import com.licola.llogger.LLogger;
 import com.licola.route.RouteApp;
 import com.licola.route.RouteUser;
@@ -234,6 +235,18 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationNotDeclareClick(View view) {
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
+        .addRouteInterceptors(new RouteInterceptor() {
+          @Override
+          public boolean onResponse(Chain chain, RouteResponse response) {
+            return false;
+          }
+
+          @Override
+          public boolean onFailure(Chain chain, Throwable throwable) {
+            Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
+            return false;
+          }
+        })
         .openDebugLog()
         .build();
 
@@ -280,15 +293,17 @@ public class MainActivity extends AppCompatActivity {
         Bundle extras = new Bundle();
         extras.putInt(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
 
-        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-            .makeSceneTransitionAnimation(MainActivity.this, view, "cover");
-        final Bundle options = optionsCompat.toBundle();
-
-        chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+        RouteRequest.Builder requestBuilder = new RouteRequest.Builder(chain.getRequest())
             .routeSource(MainActivity.this)
-            .putIntent(extras)
-            .putBundle(options)
-            .build());
+            .putIntent(extras);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+          ActivityOptions activityOptions = ActivityOptions
+              .makeSceneTransitionAnimation(MainActivity.this, view, "cover");
+          requestBuilder.putBundle(activityOptions.toBundle());
+        }
+
+        chain.onProcess(requestBuilder.build());
       }
     });
   }
