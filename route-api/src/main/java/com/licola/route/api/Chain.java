@@ -2,6 +2,7 @@ package com.licola.route.api;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.licola.route.api.source.Source;
 
 /**
  * 路由链路
@@ -16,15 +17,7 @@ public interface Chain  {
    * @return
    */
   @Nullable
-  RouteResponse onProcess();
-
-  /**
-   * 使用Response响应体 处理链路
-   * @param response
-   * @return
-   */
-  @Nullable
-  RouteResponse onProcess(RouteResponse response);
+  RouteResponse onProcess(RouteRequest request);
 
   /**
    * 使用异常 中断链路
@@ -35,8 +28,7 @@ public interface Chain  {
   @NonNull
   RouteRequest getRequest();
 
-  @Nullable
-  RouteResponse getResponse();
+  Source getSource();
 
   @NonNull
   Chain clone();

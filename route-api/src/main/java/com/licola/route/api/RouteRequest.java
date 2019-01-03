@@ -16,114 +16,32 @@ public class RouteRequest {
 
   public static final int STANDARD_REQUEST_CODE = Activity.RESULT_OK;
 
-  private int requestCode;
+  private final int requestCode;
   @Nullable
-  private String originalPath;
+  private final String routePath;
+  @NonNull
+  private final Intent intent;
   @Nullable
-  private String redirectPath;
-  @Nullable
-  private Intent intent;
-  @Nullable
-  private Bundle bundle;
+  private final Bundle bundle;
 
-  public static RouteRequest create(int requestCode,
-      String path) {
-    return new RouteRequest(requestCode, path);
+  private RouteRequest(Builder builder) {
+    this.requestCode = builder.requestCode;
+    this.routePath = builder.routePath;
+    this.intent = builder.intent;
+    this.bundle = builder.bundle;
   }
 
-  private RouteRequest(int requestCode,
-      @Nullable String originalPath) {
-    this.requestCode = requestCode;
-    this.originalPath = originalPath;
-  }
-
-  /**
-   * 返回Intent实例 使用该方法得到的Intent，加入一些参数 1:添加extra附加参数 2:设置flag标识
-   */
-  public Intent putArgs() {
-    if (this.intent == null) {
-      this.intent = new Intent();
-    }
-    return intent;
-  }
-
-  public Intent putArgs(Intent intent) {
-    this.intent = intent;
-    return intent;
-  }
-
-  /**
-   * 更新Intent 建议使用该方法返回的Intent
-   */
-  public Intent notifyIntent() {
-    this.intent = new Intent();
-    return intent;
-  }
-
-  public Bundle putBundle() {
-    if (this.bundle == null) {
-      this.bundle = new Bundle();
-    }
-    return bundle;
-  }
-
-  public Bundle putBundle(Bundle bundle) {
-    this.bundle = bundle;
-    return bundle;
-  }
-
-  public Bundle notifyBundle() {
-    this.bundle = new Bundle();
-    return bundle;
-  }
-
-
-  /**
-   * 更新显式路径
-   *
-   * @return true:成功更新路径
-   */
-  public boolean notifyPath(String newPath) {
-
-    //非空检查
-    if (Utils.isEmpty(newPath)) {
-      return false;
-    }
-
-    //原始路径为空 直接更新
-    if (Utils.isEmpty(originalPath)) {
-      this.originalPath = newPath;
-      return true;
-    }
-
-    //重定向路径空 直接更新
-    if (Utils.isEmpty(redirectPath)) {
-      this.redirectPath = newPath;
-      return true;
-    }
-
-    //在原始路径和重定向路径非空 情况下 尝试更新重定向路径
-    if (!redirectPath.equals(newPath)) {
-      this.redirectPath = newPath;
-      return true;
-    }
-
-    return false;
-  }
-
-
-  @Nullable
-  public String getOriginalPath() {
-    return originalPath;
+  public int getRequestCode() {
+    return requestCode;
   }
 
   @Nullable
-  public String getRedirectPath() {
-    return redirectPath;
+  public String getRoutePath() {
+    return routePath;
   }
 
-  @Nullable
-  Intent getIntent() {
+  @NonNull
+  public Intent getIntent() {
     return intent;
   }
 
@@ -132,22 +50,51 @@ public class RouteRequest {
     return bundle;
   }
 
-  void setIntent(@NonNull Intent intent) {
-    this.intent = intent;
-  }
+  public static class Builder {
 
-  public int getRequestCode() {
-    return requestCode;
-  }
+    private int requestCode;
+    private String routePath;
+    private Intent intent;
+    private Bundle bundle;
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("RouteRequest{");
-    sb.append("requestCode=").append(requestCode);
-    sb.append(", originalPath='").append(originalPath).append('\'');
-    sb.append(", redirectPath='").append(redirectPath).append('\'');
-    sb.append(", intent=").append(intent);
-    sb.append('}');
-    return sb.toString();
+    public Builder(int requestCode, String routePath) {
+      this.requestCode = requestCode;
+      this.routePath = routePath;
+      this.intent = new Intent();
+    }
+
+    public Builder(RouteRequest request) {
+      this.requestCode = request.requestCode;
+      this.routePath = request.routePath;
+      this.intent = request.intent;
+      this.bundle = request.bundle;
+    }
+
+    public Builder routePath(String routePath) {
+      this.routePath = routePath;
+      return this;
+    }
+
+    public Builder requestCode(int requestCode) {
+      this.requestCode = requestCode;
+      return this;
+    }
+
+    public Builder putIntent(@NonNull Bundle extras) {
+      this.intent.putExtras(extras);
+      return this;
+    }
+
+    public Builder putBundle(@NonNull Bundle extras) {
+      if (this.bundle==null){
+        this.bundle=new Bundle();
+      }
+      this.bundle.putAll(extras);
+      return this;
+    }
+
+    public RouteRequest build() {
+      return new RouteRequest(this);
+    }
   }
 }

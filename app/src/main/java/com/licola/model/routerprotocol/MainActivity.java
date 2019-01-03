@@ -101,11 +101,10 @@ public class MainActivity extends AppCompatActivity {
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(Chain chain) {
-            RouteResponse routeResponse = chain.onProcess();
-            LLogger.d(
+            RouteResponse routeResponse = chain.onProcess(chain.getRequest());
+            LLogger.d(routeResponse,
                 "是否成功跳转:" + RouteResponse.isSuccess(routeResponse),
-                "是否路由表显式跳转：" + RouteResponse.isDeclare(routeResponse),
-                "是否重定向：" + RouteResponse.isRedirect(routeResponse)
+                "是否路由表内跳转：" + RouteResponse.isRoute(routeResponse)
             );
           }
         })
@@ -123,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest request = chain.getRequest();
-                    request.notifyIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    RouteResponse response = chain.onProcess();
+                    request.getIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    RouteResponse response = chain.onProcess(request);
                     LLogger.d(response);
                   }
                 })
@@ -137,10 +136,11 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("重定向", new OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
-                    RouteRequest request = chain.getRequest();
-                    request.notifyPath(
-                        RoutePath.makePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY));
-                    RouteResponse response = chain.onProcess();
+                    RouteRequest redirectRequest = new RouteRequest.Builder(chain.getRequest())
+                        .routePath(
+                            RoutePath.makePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY))
+                        .build();
+                    RouteResponse response = chain.onProcess(redirectRequest);
                     LLogger.d(response);
                   }
                 })
@@ -159,9 +159,11 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void intercept(final Chain chain) {
             LLogger.d("优先级较低 且需要根据添加顺序调用 开始添加附带参数");
-            Intent intent = chain.getRequest().putArgs();
-            intent.putExtra("key-build", "value-build");
-            RouteResponse response = chain.onProcess();
+            Bundle extras = new Bundle();
+            extras.putInt("keyBuild", 100);
+            RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+                .putIntent(extras)
+                .build());
             LLogger.d(response);
           }
         })
@@ -171,14 +173,12 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void intercept(final Chain chain) {
         LLogger.d("优先级最高的 随参数注入拦截器 开始添加附带参数");
-        RouteRequest request = chain.getRequest();
-        request.putArgs()
-            .putExtra("key-api-1", "value-api-1")
-            .putExtra("key-api-2", 100);
-        RouteResponse response = chain.onProcess();
-        if (!RouteResponse.isRedirect(response)) {
-          LLogger.d("成功导航且非重定向 即成功跳转到原目标 可以发送EventBus事件");
-        }
+        Bundle extras = new Bundle();
+        extras.putString("key1", "value1");
+        extras.putString("key2", "value2");
+        RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+            .putIntent(extras)
+            .build());
         LLogger.d(response);
 
       }
@@ -202,10 +202,10 @@ public class MainActivity extends AppCompatActivity {
             LLogger.d(chain, throwable);
             if (throwable instanceof RouteBadRequestException) {
               Chain clone = chain.clone();
-              RouteRequest request = clone.getRequest();
               //如重定向到版本检测页 引导下载新版本
-              request.notifyPath("app/user/login");
-              clone.onProcess();
+              clone.onProcess(new RouteRequest.Builder(chain.getRequest())
+                  .routePath("app/user/login")
+                  .build());
               return true;
             }
             return false;
@@ -246,13 +246,13 @@ public class MainActivity extends AppCompatActivity {
 
         //通过包名和类名 调起特定app 如微信
         RouteRequest request = chain.getRequest();
-        Intent args = request.putArgs();
-        args.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
-//        args.setComponent(new ComponentName("com.sina.weibo", "com.sina.weibo.SplashActivity"));
-//        args.setComponent(new ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity"));
-//        args.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));
-        args.setAction(Intent.ACTION_MAIN);
-        RouteResponse response = chain.onProcess();
+        Intent intent = request.getIntent();
+        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+//        intent.setComponent(new ComponentName("com.sina.weibo", "com.sina.weibo.SplashActivity"));
+//        intent.setComponent(new ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity"));
+//        intent.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));
+        intent.setAction(Intent.ACTION_MAIN);
+        RouteResponse response = chain.onProcess(request);
         LLogger.d(response);
       }
     });
@@ -264,7 +264,6 @@ public class MainActivity extends AppCompatActivity {
     ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
         .makeSceneTransitionAnimation(this, view, "cover");
     final Bundle options = optionsCompat.toBundle();
-
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .build();
@@ -274,11 +273,12 @@ public class MainActivity extends AppCompatActivity {
         RouteRequest.STANDARD_REQUEST_CODE, new Interceptor() {
           @Override
           public void intercept(Chain chain) {
-            RouteRequest request = chain.getRequest();
-            Intent args = request.putArgs();
-            args.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
-            request.putBundle(options);
-            chain.onProcess();
+            Bundle extras = new Bundle();
+            extras.putInt(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
+            chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+                .putIntent(extras)
+                .putBundle(options)
+                .build());
           }
         });
   }

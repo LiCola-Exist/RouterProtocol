@@ -50,8 +50,8 @@ public class AnimationSharedActivity extends AppCompatActivity {
   }
 
   private void loadImage(ImageView imageView) {
-
     int valueImage = getIntent().getIntExtra(KEY_IMAGE, 0);
+    LLogger.d("获取传递来的参数:"+valueImage);
     imageView.setImageResource(valueImage);
   }
 }

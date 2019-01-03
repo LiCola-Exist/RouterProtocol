@@ -24,7 +24,6 @@ public interface RouteInterceptor {
    * @see com.licola.route.api.exceptions.RouteConfigError
    * @see com.licola.route.api.exceptions.RouteBadRequestException
    * @see com.licola.route.api.exceptions.RouteBreakException
-   * @see com.licola.route.api.exceptions.RouteEmptyResponseException
    */
   boolean onFailure(Chain chain, Throwable throwable);
 }

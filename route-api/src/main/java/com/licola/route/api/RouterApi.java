@@ -2,10 +2,8 @@ package com.licola.route.api;
 
 import android.app.Activity;
 import android.app.Application;
-import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import com.licola.route.annotation.RouteMeta;
 import com.licola.route.api.source.ActivitySource;
 import com.licola.route.api.source.ApplicationSource;
@@ -17,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Created by LiCola on 2018/7/5.
@@ -92,7 +89,7 @@ public class RouterApi implements Api {
 
       List<RouteMeta> metas = routeRoot.load();
 
-      if (Utils.isEmpty(metas)){
+      if (Utils.isEmpty(metas)) {
         continue;
       }
 
@@ -110,11 +107,11 @@ public class RouterApi implements Api {
 
   private Source createSource(Activity activity, Fragment fragment) {
 
-    if (fragment!=null){
+    if (fragment != null) {
       return new FragmentSource(fragment);
-    }else if (activity!=null){
+    } else if (activity != null) {
       return new ActivitySource(activity);
-    }else {
+    } else {
       return new ApplicationSource(application);
     }
   }
@@ -134,10 +131,11 @@ public class RouterApi implements Api {
 
     Source source = createSource(activity, fragment);
 
-    RouteRequest request = RouteRequest.create(requestCode, path);
-    Chain chain = RealChain.newChain(routeMap, source, interceptorAll, routeInterceptors, request);
+    RouteRequest request = new RouteRequest.Builder(requestCode, path).build();
 
-    chain.onProcess();
+    Chain chain = new RealChain(routeMap, source, interceptorAll, routeInterceptors, 0);
+
+    chain.onProcess(request);
   }
 
   public static final class Builder {
@@ -184,6 +182,7 @@ public class RouterApi implements Api {
 
     public Api build() {
       //添加实现跳转功能的拦截器
+      this.interceptors.add(new ResolveInterceptor());
       this.interceptors.add(new JumpInterceptor());
 
       if (routeRoots.isEmpty()) {

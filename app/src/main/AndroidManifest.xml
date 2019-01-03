@@ -18,7 +18,6 @@
     </activity>
     <activity android:name=".SecondActivity" />
     <activity android:name=".RedirectActivity" />
-    <activity android:name=".mvp.ViewActivity"></activity>
     <activity android:name=".AnimationSharedActivity"
       android:theme="@style/TransitionTheme"
       />

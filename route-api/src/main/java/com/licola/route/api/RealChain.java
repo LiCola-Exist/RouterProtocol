@@ -3,7 +3,7 @@ package com.licola.route.api;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.licola.route.annotation.RouteMeta;
-import com.licola.route.api.exceptions.RouteEmptyResponseException;
+import com.licola.route.api.exceptions.RouteBadRequestException;
 import com.licola.route.api.source.Source;
 import java.util.List;
 import java.util.Map;
@@ -14,45 +14,46 @@ import java.util.Map;
  */
 class RealChain implements Chain {
 
-  private Map<String, RouteMeta> routeMap;
+  private final Map<String, RouteMeta> routeMap;
 
-  private Source source;
-  private List<Interceptor> interceptors;
-  private List<RouteInterceptor> routeInterceptors;
+  private final Source source;
+  private final List<Interceptor> interceptors;
+  private final List<RouteInterceptor> routeInterceptors;
 
   private int index;
 
   @NonNull
   private RouteRequest request;
-  @Nullable
+
   private RouteResponse response;
 
-  @Override
-  public RouteResponse onProcess() {
-    return onProcess(null);
+  public void setResponse(RouteResponse response){
+    this.response=response;
   }
 
-
+  @Nullable
   @Override
-  public RouteResponse onProcess(RouteResponse newResponse) {
+  public RouteResponse onProcess(RouteRequest request) {
 
-    response = newResponse != null ? newResponse : response;
+    this.request=request;
 
-    if (response == null) {
-      if (index < interceptors.size()) {
-        interceptors.get(index++).intercept(this);
-      } else {
-        onBreak(new RouteEmptyResponseException("没有拦截器处理得到RouteResponse"));
-      }
-    } else {
-      if (routeInterceptors != null && !routeInterceptors.isEmpty()) {
-        for (RouteInterceptor routeInterceptor : routeInterceptors) {
-          if (routeInterceptor.onResponse(this, response)) {
-            break;
-          }
+    if (response != null) {
+      //响应非空 表示成功 分发响应结果
+      for (RouteInterceptor routeInterceptor : routeInterceptors) {
+        if (routeInterceptor.onResponse(this, response)) {
+          break;
         }
       }
+      return response;
     }
+
+    if (index<interceptors.size()){
+      Interceptor interceptor = interceptors.get(index++);
+      interceptor.intercept(this);
+    }else {
+      onBreak(new RouteBadRequestException("没有拦截器处理得到RouteResponse"));
+    }
+
     return response;
   }
 
@@ -65,29 +66,17 @@ class RealChain implements Chain {
     }
   }
 
-  static Chain newChain(Map<String, RouteMeta> routeMap,
+  RealChain(Map<String, RouteMeta> routeMap,
       Source source,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
-      RouteRequest request
+      int index
   ) {
-    if (request == null) {
-      throw new IllegalArgumentException("request==null");
-    }
-    return new RealChain(routeMap, source, interceptors, routeInterceptors, request);
-  }
-
-  private RealChain(Map<String, RouteMeta> routeMap,
-      Source source,
-      List<Interceptor> interceptors,
-      List<RouteInterceptor> routeInterceptors,
-      @NonNull RouteRequest request) {
     this.routeMap = routeMap;
     this.source = source;
     this.interceptors = interceptors;
     this.routeInterceptors = routeInterceptors;
-    this.request = request;
-    this.index = 0;
+    this.index = index;
   }
 
   public Map<String, RouteMeta> getRouteMap() {
@@ -95,6 +84,7 @@ class RealChain implements Chain {
   }
 
   @NonNull
+  @Override
   public Source getSource() {
     return source;
   }
@@ -105,15 +95,9 @@ class RealChain implements Chain {
     return request;
   }
 
-  @Nullable
-  @Override
-  public RouteResponse getResponse() {
-    return response;
-  }
-
   @NonNull
   @Override
   public Chain clone() {
-    return newChain(routeMap, source, interceptors, routeInterceptors, request);
+    return new RealChain(routeMap, source, interceptors, routeInterceptors, 0);
   }
 }
