@@ -33,20 +33,16 @@ public class JumpInterceptor implements Interceptor {
 
     String requestPath = request.getRoutePath();
 
-    if (Utils.isEmpty(requestPath)) {
-      chain.onBreak(new RouteConfigError("路由查表方式跳转 但是path为空 无法查表"));
-      return;
-    }
-
     if (Utils.isEmpty(routeMap)) {
       chain.onBreak(new RouteConfigError("路由配置错误 路由表为空"));
       return;
     }
 
     RouteMeta meta = routeMap.get(requestPath);
+
     if (meta != null) {
 
-      Source source = realChain.getSource();
+      Source source = request.getSource();
       Class<?> target = meta.getTarget();
 
       intent.setClass(source.getContext(), target);

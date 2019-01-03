@@ -1,13 +1,9 @@
 package com.licola.route.api;
 
-import android.app.Activity;
 import android.app.Application;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import com.licola.route.annotation.RouteMeta;
-import com.licola.route.api.source.ActivitySource;
 import com.licola.route.api.source.ApplicationSource;
-import com.licola.route.api.source.FragmentSource;
 import com.licola.route.api.source.Source;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +18,7 @@ import java.util.Map;
 public class RouterApi implements Api {
 
   @NonNull
-  private Application application;
+  private Source appSource;
   @NonNull
   private Map<String, RouteMeta> routeMap;
   @NonNull
@@ -30,7 +26,7 @@ public class RouterApi implements Api {
   private List<RouteInterceptor> routeInterceptors;
 
   private RouterApi(Builder builder) {
-    this.application = builder.application;
+    this.appSource = builder.appSource;
     this.interceptors = Collections.unmodifiableList(builder.interceptors);
     this.routeInterceptors = Collections.unmodifiableList(builder.routeInterceptors);
     this.routeMap = Collections.unmodifiableMap(loadRoute(builder.routeRoots));
@@ -38,48 +34,41 @@ public class RouterApi implements Api {
 
   @Override
   public void navigation(String path) {
-    process(path, null, null, RouteRequest.STANDARD_REQUEST_CODE, null);
-  }
-
-  @Override
-  public void navigation(String path, Activity activity, int requestCode) {
-    process(path, activity, null, requestCode, null);
-  }
-
-  @Override
-  public void navigation(String path, Fragment fragment, int requestCode) {
-    process(path, null, fragment, requestCode, null);
-  }
-
-  @Override
-  public void navigation(String path, Interceptor interceptor) {
-    process(path, null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
+    RouteRequest request = new RouteRequest.Builder(path,appSource)
+        .build();
+    process(request, null);
   }
 
   @Override
   public void navigation(Interceptor interceptor) {
-    process(null, null, null, RouteRequest.STANDARD_REQUEST_CODE, interceptor);
+    RouteRequest request = new RouteRequest.Builder(null,appSource)
+        .build();
+    process(request, interceptor);
   }
 
   @Override
-  public void navigation(Activity activity, int requestCode, Interceptor interceptor) {
-    process(null, activity, null, requestCode, interceptor);
+  public void navigation(String path, Interceptor interceptor) {
+    RouteRequest request = new RouteRequest.Builder(path,appSource)
+        .build();
+    process(request, interceptor);
   }
 
   @Override
-  public void navigation(Fragment fragment, int requestCode, Interceptor interceptor) {
-    process(null, null, fragment, requestCode, interceptor);
+  public void navigation(RouteRequest request) {
+    process(request, null);
   }
 
-  @Override
-  public void navigation(String path, Activity activity, int requestCode,
-      Interceptor interceptor) {
-    process(path, activity, null, requestCode, interceptor);
-  }
+  private void process(RouteRequest request, Interceptor interceptor) {
 
-  @Override
-  public void navigation(String path, Fragment fragment, int requestCode, Interceptor interceptor) {
-    process(path, null, fragment, requestCode, interceptor);
+    List<Interceptor> interceptorAll = new ArrayList<>(interceptors.size() + 1);
+    if (interceptor != null) {
+      interceptorAll.add(interceptor);
+    }
+    interceptorAll.addAll(interceptors);
+
+    Chain chain = new RealChain(routeMap, interceptorAll, routeInterceptors, 0);
+
+    chain.onProcess(request);
   }
 
   @NonNull
@@ -105,42 +94,9 @@ public class RouterApi implements Api {
     return totalMap;
   }
 
-  private Source createSource(Activity activity, Fragment fragment) {
-
-    if (fragment != null) {
-      return new FragmentSource(fragment);
-    } else if (activity != null) {
-      return new ActivitySource(activity);
-    } else {
-      return new ApplicationSource(application);
-    }
-  }
-
-  private void process(String path, Activity activity, Fragment fragment, int requestCode,
-      Interceptor interceptor) {
-    if (Utils.isEmpty(path) && interceptor == null) {
-      throw new IllegalArgumentException(
-          "path and interceptor cannot be empty/null at the same time ");
-    }
-
-    List<Interceptor> interceptorAll = new ArrayList<>(interceptors.size() + 1);
-    if (interceptor != null) {
-      interceptorAll.add(interceptor);
-    }
-    interceptorAll.addAll(interceptors);
-
-    Source source = createSource(activity, fragment);
-
-    RouteRequest request = new RouteRequest.Builder(requestCode, path).build();
-
-    Chain chain = new RealChain(routeMap, source, interceptorAll, routeInterceptors, 0);
-
-    chain.onProcess(request);
-  }
-
   public static final class Builder {
 
-    Application application;
+    Source appSource;
     List<Interceptor> interceptors = new ArrayList<>();
     List<RouteInterceptor> routeInterceptors = new ArrayList<>();
     List<RouteRoot> routeRoots = new ArrayList<>();
@@ -149,7 +105,7 @@ public class RouterApi implements Api {
       if (application == null) {
         throw new IllegalArgumentException("application == null");
       }
-      this.application = application;
+      this.appSource = new ApplicationSource(application);
     }
 
     public Builder addInterceptors(Interceptor interceptor) {

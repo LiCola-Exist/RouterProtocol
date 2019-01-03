@@ -6,15 +6,14 @@ import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_API;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INNER_ROUTE;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_INTERCEPTOR;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_API;
+import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_REQUEST;
 import static com.licola.route.compiler.Constants.ROUTE_CLASS_ROUTE_ROOT;
 import static com.licola.route.compiler.Constants.ROUTE_FIELD_ROUTE_MODULE_NAME;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_LOAD_PARAMETER;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION;
-import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY;
-import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_FRAGMENT;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR;
-import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE;
+import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST;
 import static com.licola.route.compiler.Constants.ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET;
 
 import com.google.auto.common.MoreElements;
@@ -204,18 +203,9 @@ public class ProcessorRoute {
             ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR)
         .build();
 
-    ParameterSpec parameterActivity = ParameterSpec
-        .builder(ClassName.get("android.app", "Activity"),
-            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY)
-        .build();
-
-    ParameterSpec parameterFragment = ParameterSpec
-        .builder(ClassName.get("android.support.v4.app", "Fragment"),
-            ROUTE_METHOD_NAVIGATION_PARAMETER_FRAGMENT)
-        .build();
-
-    ParameterSpec parameterRequestCode = ParameterSpec
-        .builder(int.class, ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE)
+    ParameterSpec parameterRequest = ParameterSpec
+        .builder(ClassName.get(PACKAGE_API, ROUTE_CLASS_ROUTE_REQUEST),
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST)
         .build();
 
     methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
@@ -249,86 +239,9 @@ public class ProcessorRoute {
 
     methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
         .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterActivity)
-        .addParameter(parameterRequestCode)
-        .addParameter(parameterInterceptor)
-        .addStatement("api.navigation($L,$L,$L)",
-            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
-        )
-        .returns(void.class)
-        .build());
-
-    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterFragment)
-        .addParameter(parameterRequestCode)
-        .addParameter(parameterInterceptor)
-        .addStatement("api.navigation($L,$L,$L)",
-            ROUTE_METHOD_NAVIGATION_PARAMETER_FRAGMENT,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
-        )
-        .returns(void.class)
-        .build());
-
-    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterTarget)
-        .addParameter(parameterActivity)
-        .addParameter(parameterRequestCode)
-        .addStatement("api.navigation($T.makePath($L,$L),$L,$L)", RoutePath.class,
-            ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE
-        )
-        .returns(void.class)
-        .build());
-
-    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterTarget)
-        .addParameter(parameterFragment)
-        .addParameter(parameterRequestCode)
-        .addStatement("api.navigation($T.makePath($L,$L),$L,$L)", RoutePath.class,
-            ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_FRAGMENT,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE
-        )
-        .returns(void.class)
-        .build());
-
-    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterTarget)
-        .addParameter(parameterActivity)
-        .addParameter(parameterRequestCode)
-        .addParameter(parameterInterceptor)
-        .addStatement("api.navigation($T.makePath($L,$L),$L,$L,$L)", RoutePath.class,
-            ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_ACTIVITY,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
-        )
-        .returns(void.class)
-        .build());
-
-    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(parameterTarget)
-        .addParameter(parameterFragment)
-        .addParameter(parameterRequestCode)
-        .addParameter(parameterInterceptor)
-        .addStatement("api.navigation($T.makePath($L,$L),$L,$L,$L)", RoutePath.class,
-            ROUTE_FIELD_ROUTE_MODULE_NAME,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_TARGET,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_FRAGMENT,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST_CODE,
-            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
+        .addParameter(parameterRequest)
+        .addStatement("api.navigation($L)",
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST
         )
         .returns(void.class)
         .build());

@@ -62,8 +62,16 @@ public class MainActivity extends AppCompatActivity {
         .addRouteRoot(new RouteApp.Route())
         .build();
 
-    api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY), this,
-        REQUEST_CODE);
+    api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY),
+        new Interceptor() {
+          @Override
+          public void intercept(Chain chain) {
+            chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+                .routeSource(MainActivity.this)
+                .requestCode(REQUEST_CODE)
+                .build());
+          }
+        });
   }
 
   /**
@@ -239,12 +247,13 @@ public class MainActivity extends AppCompatActivity {
       public void intercept(Chain chain) {
         //通过action 调起拨号
 //        RouteRequest request = chain.getRequest();
-//        request.notifyIntent().setAction(Intent.ACTION_DIAL)
+//        request.getIntent()
+//            .setAction(Intent.ACTION_DIAL)
 //            .setData(Uri.parse("tel:17600000001"));
-//        RouteResponse response = chain.onProcess();
-//        LLogger.d(RouteResponse.isDeclare(response));
+//        RouteResponse response = chain.onProcess(request);
+//        LLogger.d(RouteResponse.isRoute(response));
 
-        //通过包名和类名 调起特定app 如微信
+//        //通过包名和类名 调起特定app 如微信
         RouteRequest request = chain.getRequest();
         Intent intent = request.getIntent();
         intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
@@ -258,29 +267,30 @@ public class MainActivity extends AppCompatActivity {
     });
   }
 
-  public void onNavigationAnimationClick(View view) {
-    Intent intent = new Intent(this, AnimationSharedActivity.class);
-    intent.putExtra(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
-    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
-        .makeSceneTransitionAnimation(this, view, "cover");
-    final Bundle options = optionsCompat.toBundle();
+  public void onNavigationAnimationClick(final View view) {
+
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
         .build();
 
     RouteApp.Api appApi = new RouteApp.Api(api);
-    appApi.navigation(RouteApp.ANIMATION_SHARED_ACTIVITY, MainActivity.this,
-        RouteRequest.STANDARD_REQUEST_CODE, new Interceptor() {
-          @Override
-          public void intercept(Chain chain) {
-            Bundle extras = new Bundle();
-            extras.putInt(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
-            chain.onProcess(new RouteRequest.Builder(chain.getRequest())
-                .putIntent(extras)
-                .putBundle(options)
-                .build());
-          }
-        });
+    appApi.navigation(RouteApp.ANIMATION_SHARED_ACTIVITY, new Interceptor() {
+      @Override
+      public void intercept(Chain chain) {
+        Bundle extras = new Bundle();
+        extras.putInt(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
+
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat
+            .makeSceneTransitionAnimation(MainActivity.this, view, "cover");
+        final Bundle options = optionsCompat.toBundle();
+
+        chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+            .routeSource(MainActivity.this)
+            .putIntent(extras)
+            .putBundle(options)
+            .build());
+      }
+    });
   }
 
   @Override

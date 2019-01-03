@@ -13,6 +13,9 @@ import com.licola.llogger.LLogger;
 import com.licola.route.RouteApp;
 import com.licola.route.RouteApp.Route;
 import com.licola.route.api.Api;
+import com.licola.route.api.Chain;
+import com.licola.route.api.Interceptor;
+import com.licola.route.api.RouteRequest;
 import com.licola.route.api.RouterApi;
 
 
@@ -55,14 +58,22 @@ public class MainFragment extends Fragment {
 
     RouteApp.Api appApi = new RouteApp.Api(api);
 
-    appApi.navigation(RouteApp.SECOND_ACTIVITY, this, FRAG_REQUEST_CODE);
+    appApi.navigation(RouteApp.SECOND_ACTIVITY, new Interceptor() {
+      @Override
+      public void intercept(Chain chain) {
+        chain.onProcess(new RouteRequest.Builder(chain.getRequest())
+            .routeSource(MainFragment.this)
+            .requestCode(FRAG_REQUEST_CODE)
+            .build());
+      }
+    });
 
   }
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    Toast.makeText(getContext(),"Fragment收到结果" ,Toast.LENGTH_SHORT ).show();
+    Toast.makeText(getContext(), "Fragment收到结果", Toast.LENGTH_SHORT).show();
     LLogger.d(requestCode, resultCode, data);
   }
 }

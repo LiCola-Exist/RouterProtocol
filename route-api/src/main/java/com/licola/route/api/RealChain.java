@@ -16,7 +16,6 @@ class RealChain implements Chain {
 
   private final Map<String, RouteMeta> routeMap;
 
-  private final Source source;
   private final List<Interceptor> interceptors;
   private final List<RouteInterceptor> routeInterceptors;
 
@@ -67,13 +66,11 @@ class RealChain implements Chain {
   }
 
   RealChain(Map<String, RouteMeta> routeMap,
-      Source source,
       List<Interceptor> interceptors,
       List<RouteInterceptor> routeInterceptors,
       int index
   ) {
     this.routeMap = routeMap;
-    this.source = source;
     this.interceptors = interceptors;
     this.routeInterceptors = routeInterceptors;
     this.index = index;
@@ -85,12 +82,6 @@ class RealChain implements Chain {
 
   @NonNull
   @Override
-  public Source getSource() {
-    return source;
-  }
-
-  @NonNull
-  @Override
   public RouteRequest getRequest() {
     return request;
   }
@@ -98,6 +89,6 @@ class RealChain implements Chain {
   @NonNull
   @Override
   public Chain clone() {
-    return new RealChain(routeMap, source, interceptors, routeInterceptors, 0);
+    return new RealChain(routeMap, interceptors, routeInterceptors, 0);
   }
 }

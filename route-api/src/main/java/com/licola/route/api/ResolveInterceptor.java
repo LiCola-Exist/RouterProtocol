@@ -26,7 +26,7 @@ public class ResolveInterceptor implements Interceptor {
 
     Intent intent = request.getIntent();
 
-    Source source = realChain.getSource();
+    Source source = request.getSource();
 
     PackageManager packageManager = source.getContext().getPackageManager();
     ResolveInfo resolveInfo = packageManager

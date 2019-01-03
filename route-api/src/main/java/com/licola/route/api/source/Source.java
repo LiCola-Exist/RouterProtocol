@@ -1,11 +1,11 @@
 package com.licola.route.api.source;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 
 /**
  * @author LiCola
@@ -19,18 +19,17 @@ public abstract class Source {
   public abstract void startActivity(Intent intent, int requestCode, Bundle bundle);
 
 
-  /**
-   * 该Intent能否被PackageManager隐式解析 如通过 setAction() 设置，使得能够被外部解析
-   *
-   * @return true:能够被隐式解析
-   */
-  public final boolean isResolveNotDeclareIntent(@Nullable Intent intent) {
-    if (intent == null) {
-      return false;
+  private static Source createSource(Application application, Activity activity,
+      Fragment fragment) {
+
+    if (fragment != null) {
+      return new FragmentSource(fragment);
+    } else if (activity != null) {
+      return new ActivitySource(activity);
+    } else if (application != null) {
+      return new ApplicationSource(application);
     }
 
-    PackageManager packageManager = getContext().getPackageManager();
-    ResolveInfo resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-    return resolveInfo != null;
+    return null;
   }
 }
