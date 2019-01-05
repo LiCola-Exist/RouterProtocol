@@ -9,7 +9,7 @@ import android.support.v4.app.Fragment;
  * @author LiCola
  * @date 2018/11/16
  */
-public class FragmentSource extends Source {
+public final class FragmentSource implements Source {
 
   private Fragment fragment;
 

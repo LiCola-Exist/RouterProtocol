@@ -21,7 +21,7 @@ public class SecondActivity extends AppCompatActivity {
     if (extras != null) {
       textView.append("带参数的Intent\n");
       for (String key : extras.keySet()) {
-        textView.append("key:" + key + " value:" + extras.get(key)+"\n");
+        textView.append("key:" + key + "/value:" + extras.get(key) + "\n");
       }
     } else {
       textView.append("不带参数的Intent\n");

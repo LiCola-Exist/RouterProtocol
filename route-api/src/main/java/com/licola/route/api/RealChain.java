@@ -11,7 +11,7 @@ import java.util.Map;
  * @author LiCola
  * @date 2018/7/23
  */
-class RealChain implements Chain {
+final class RealChain implements Chain {
 
   private final Map<String, RouteMeta> routeMap;
 

@@ -7,17 +7,17 @@ import java.util.Map;
  * @author LiCola
  * @date 2018/7/23
  */
-public class Utils {
+final class Utils {
 
-  public static boolean isEmpty(CharSequence value) {
+  static boolean isEmpty(CharSequence value) {
     return value == null || value.length() == 0;
   }
 
-  public static boolean isEmpty(Map map) {
+  static boolean isEmpty(Map map) {
     return map == null || map.isEmpty();
   }
 
-  public static boolean isEmpty(List list) {
+  static boolean isEmpty(List list) {
     return list == null || list.isEmpty();
   }
 }

@@ -11,9 +11,9 @@ import java.util.Map;
 
 /**
  * Created by LiCola on 2018/7/5.
- * 路由表内跳转拦截器
+ * 路由表内，Meta元数据解析拦截器
  */
-public class JumpInterceptor implements Interceptor {
+public final class MetaInterceptor implements Interceptor {
 
   @Override
   public void intercept(Chain chain) {

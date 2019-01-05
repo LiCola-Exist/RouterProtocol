@@ -1,12 +1,12 @@
 package com.licola.model.routerprotocol;
 
-import android.app.ActivityOptions;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -131,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest request = chain.getRequest();
-                    request.getIntent().setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    Intent intent = request.getIntent();
+                    intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     RouteResponse response = chain.onProcess(request);
                     LLogger.d(response);
                   }
@@ -146,8 +147,7 @@ public class MainActivity extends AppCompatActivity {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                     RouteRequest redirectRequest = new RouteRequest.Builder(chain.getRequest())
-                        .routePath(
-                            RoutePath.makePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY))
+                        .routePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY)
                         .build();
                     RouteResponse response = chain.onProcess(redirectRequest);
                     LLogger.d(response);
@@ -167,9 +167,10 @@ public class MainActivity extends AppCompatActivity {
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(final Chain chain) {
-            LLogger.d("优先级较低 且需要根据添加顺序调用 开始添加附带参数");
+            LLogger.d("根据添加顺序调用 开始添加附带参数");
             Bundle extras = new Bundle();
             extras.putInt("keyBuild", 100);
+            extras.putString("key", "注意同参数key覆盖");
             RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
                 .putIntent(extras)
                 .build());
@@ -181,10 +182,11 @@ public class MainActivity extends AppCompatActivity {
     api.navigation("app/second", new Interceptor() {
       @Override
       public void intercept(final Chain chain) {
-        LLogger.d("优先级最高的 随参数注入拦截器 开始添加附带参数");
+        LLogger.d("随参数注入拦截器 开始添加附带参数");
         Bundle extras = new Bundle();
         extras.putString("key1", "value1");
         extras.putString("key2", "value2");
+        extras.putInt("key", 100);
         RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
             .putIntent(extras)
             .build());
@@ -210,10 +212,11 @@ public class MainActivity extends AppCompatActivity {
           public boolean onFailure(Chain chain, Throwable throwable) {
             LLogger.d(chain, throwable);
             if (throwable instanceof RouteBadRequestException) {
+              Toast.makeText(MainActivity.this, "失败的导航，降级处理", Toast.LENGTH_SHORT).show();
               Chain clone = chain.clone();
               //如重定向到版本检测页 引导下载新版本
               clone.onProcess(new RouteRequest.Builder(chain.getRequest())
-                  .routePath("app/user/login")
+                  .routePath("app/redirect")
                   .build());
               return true;
             }
@@ -235,18 +238,6 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationNotDeclareClick(View view) {
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
-        .addRouteInterceptors(new RouteInterceptor() {
-          @Override
-          public boolean onResponse(Chain chain, RouteResponse response) {
-            return false;
-          }
-
-          @Override
-          public boolean onFailure(Chain chain, Throwable throwable) {
-            Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
-            return false;
-          }
-        })
         .openDebugLog()
         .build();
 
@@ -275,7 +266,12 @@ public class MainActivity extends AppCompatActivity {
 //        intent.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));
         intent.setAction(Intent.ACTION_MAIN);
         RouteResponse response = chain.onProcess(request);
-        LLogger.d(response);
+        if (RouteResponse.isSuccess(response)) {
+          LLogger.d("成功导航到外部应用");
+        } else {
+          LLogger.d("无法导航到外部应用");
+          Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
+        }
       }
     });
   }
@@ -293,15 +289,13 @@ public class MainActivity extends AppCompatActivity {
         Bundle extras = new Bundle();
         extras.putInt(AnimationSharedActivity.KEY_IMAGE, R.drawable.cover);
 
+        ActivityOptionsCompat activityOptions = ActivityOptionsCompat
+            .makeSceneTransitionAnimation(MainActivity.this, view, "cover");
+
         RouteRequest.Builder requestBuilder = new RouteRequest.Builder(chain.getRequest())
             .routeSource(MainActivity.this)
-            .putIntent(extras);
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-          ActivityOptions activityOptions = ActivityOptions
-              .makeSceneTransitionAnimation(MainActivity.this, view, "cover");
-          requestBuilder.putBundle(activityOptions.toBundle());
-        }
+            .putIntent(extras)
+            .putBundle(activityOptions.toBundle());
 
         chain.onProcess(requestBuilder.build());
       }

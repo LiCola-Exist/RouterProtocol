@@ -9,7 +9,7 @@ import android.os.Bundle;
  * @author LiCola
  * @date 2018/11/16
  */
-public class ApplicationSource extends Source {
+public final class ApplicationSource implements Source {
 
   private Application application;
 

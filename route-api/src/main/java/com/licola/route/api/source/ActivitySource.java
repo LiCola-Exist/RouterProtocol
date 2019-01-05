@@ -9,7 +9,7 @@ import android.os.Bundle;
  * @author LiCola
  * @date 2019/1/2
  */
-public class ActivitySource extends Source {
+public final class ActivitySource implements Source {
 
   private Activity activity;
 

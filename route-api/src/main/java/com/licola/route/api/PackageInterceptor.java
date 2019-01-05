@@ -7,12 +7,12 @@ import com.licola.route.api.exceptions.RouteBadChainException;
 import com.licola.route.api.source.Source;
 
 /**
- * 路由表外，应用解析跳转拦截器
+ * 路由表外，应用解析拦截器
  *
  * @author LiCola
  * @date 2019/1/3
  */
-public class ResolveInterceptor implements Interceptor {
+public final class PackageInterceptor implements Interceptor {
 
   @Override
   public void intercept(Chain chain) {

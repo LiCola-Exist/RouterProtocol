@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by LiCola on 2018/7/5.
  */
-public class RouterApi implements Api {
+public final class RouterApi implements Api {
 
   @NonNull
   private Source appSource;
@@ -34,21 +34,23 @@ public class RouterApi implements Api {
 
   @Override
   public void navigation(String path) {
-    RouteRequest request = new RouteRequest.Builder(path,appSource)
+    RouteRequest request = new RouteRequest.Builder(appSource)
+        .routePath(path)
         .build();
     process(request, null);
   }
 
   @Override
   public void navigation(Interceptor interceptor) {
-    RouteRequest request = new RouteRequest.Builder(null,appSource)
+    RouteRequest request = new RouteRequest.Builder(appSource)
         .build();
     process(request, interceptor);
   }
 
   @Override
   public void navigation(String path, Interceptor interceptor) {
-    RouteRequest request = new RouteRequest.Builder(path,appSource)
+    RouteRequest request = new RouteRequest.Builder(appSource)
+        .routePath(path)
         .build();
     process(request, interceptor);
   }
@@ -60,11 +62,14 @@ public class RouterApi implements Api {
 
   private void process(RouteRequest request, Interceptor interceptor) {
 
-    List<Interceptor> interceptorAll = new ArrayList<>(interceptors.size() + 1);
+    List<Interceptor> interceptorAll;
     if (interceptor != null) {
+      interceptorAll = new ArrayList<>(interceptors.size() + 1);
       interceptorAll.add(interceptor);
+      interceptorAll.addAll(interceptors);
+    } else {
+      interceptorAll = interceptors;
     }
-    interceptorAll.addAll(interceptors);
 
     Chain chain = new RealChain(routeMap, interceptorAll, routeInterceptors, 0);
 
@@ -138,8 +143,8 @@ public class RouterApi implements Api {
 
     public Api build() {
       //添加实现跳转功能的拦截器
-      this.interceptors.add(new ResolveInterceptor());
-      this.interceptors.add(new JumpInterceptor());
+      this.interceptors.add(new PackageInterceptor());
+      this.interceptors.add(new MetaInterceptor());
 
       if (routeRoots.isEmpty()) {
         throw new IllegalArgumentException("routeRoots can not empty");

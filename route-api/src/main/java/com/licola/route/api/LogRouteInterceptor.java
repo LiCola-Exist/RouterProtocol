@@ -6,7 +6,7 @@ import android.util.Log;
  * @author LiCola
  * @date 2018/7/23
  */
-public class LogRouteInterceptor implements RouteInterceptor {
+final class LogRouteInterceptor implements RouteInterceptor {
 
   private static final String TAG = "Route";
 
