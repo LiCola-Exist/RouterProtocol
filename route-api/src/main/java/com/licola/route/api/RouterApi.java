@@ -60,6 +60,11 @@ public final class RouterApi implements Api {
     process(request, null);
   }
 
+  @Override
+  public void navigation(RouteRequest request, Interceptor interceptor) {
+    process(request, interceptor);
+  }
+
   private void process(RouteRequest request, Interceptor interceptor) {
 
     List<Interceptor> interceptorAll;

@@ -246,6 +246,17 @@ public class ProcessorRoute {
         .returns(void.class)
         .build());
 
+    methodSpecs.add(MethodSpec.methodBuilder(ROUTE_METHOD_NAVIGATION)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(parameterRequest)
+        .addParameter(parameterInterceptor)
+        .addStatement("api.navigation($L,$L)",
+            ROUTE_METHOD_NAVIGATION_PARAMETER_REQUEST,
+            ROUTE_METHOD_NAVIGATION_PARAMETER_INTERCEPTOR
+        )
+        .returns(void.class)
+        .build());
+
     return methodSpecs;
   }
 

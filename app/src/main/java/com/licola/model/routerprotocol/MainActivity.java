@@ -16,6 +16,7 @@ import com.licola.route.RouteApp;
 import com.licola.route.RouteUser;
 import com.licola.route.annotation.Route;
 import com.licola.route.annotation.RoutePath;
+import com.licola.route.api.AdapterRouteInterceptor;
 import com.licola.route.api.Api;
 import com.licola.route.api.Chain;
 import com.licola.route.api.Interceptor;
@@ -238,6 +239,13 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationNotDeclareClick(View view) {
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
+        .addRouteInterceptors(new AdapterRouteInterceptor(){
+          @Override
+          public boolean onFailure(Chain chain, Throwable throwable) {
+            Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
+            return true;
+          }
+        })
         .openDebugLog()
         .build();
 
@@ -270,7 +278,6 @@ public class MainActivity extends AppCompatActivity {
           LLogger.d("成功导航到外部应用");
         } else {
           LLogger.d("无法导航到外部应用");
-          Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
         }
       }
     });
