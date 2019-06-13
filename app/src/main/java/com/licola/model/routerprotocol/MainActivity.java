@@ -48,12 +48,15 @@ public class MainActivity extends AppCompatActivity {
    * 路由的简单使用
    */
   public void onNavigationSimpleClick(View view) {
+    //step1：构造路由api实例
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
+        .addRouteRoot(new RouteApp.Route())//选择注入的路由表
         .build();
+
+    //step2：开始导航
     //以下两行代码 效果一样
-//    api.navigation("app/second");
-    api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY));//常量导航
+//    api.navigation("app/second");//直接路径导航 参数格式：模块名/页面路径
+    api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY));//使用生成的常量导航 使用工具方法构造参数
   }
 
   /**
@@ -69,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void intercept(Chain chain) {
             chain.onProcess(new RouteRequest.Builder(chain.getRequest())
-                .routeSource(MainActivity.this)
                 .requestCode(REQUEST_CODE)
                 .build());
           }
@@ -84,8 +86,9 @@ public class MainActivity extends AppCompatActivity {
         .addRouteRoot(new RouteApp.Route())
         .build();
 
+    //模块内 跳转 路径参数带注解提示
     RouteApp.Api appApi = new RouteApp.Api(api);
-    appApi.navigation(RouteApp.SECOND_ACTIVITY);//参数注解会提示输入规则 must be one of
+    appApi.navigation(RouteApp.SECOND_ACTIVITY);//参数注解会提示输入规则
   }
 
   /**
@@ -112,52 +115,53 @@ public class MainActivity extends AppCompatActivity {
           @Override
           public void intercept(Chain chain) {
             RouteResponse routeResponse = chain.onProcess(chain.getRequest());
-            LLogger.d(routeResponse,
-                "是否成功跳转:" + RouteResponse.isSuccess(routeResponse),
-                "是否路由表内跳转：" + RouteResponse.isRoute(routeResponse)
-            );
+            LLogger.d(routeResponse, "是否成功跳转:" + RouteResponse.isSuccess(routeResponse));
           }
         })
-        .openDebugLog()
+        .openDebugLog()//开启调试模式 log打印导航结果
         .build();
+
+
     api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY),
         new Interceptor() {
           @Override
           public void intercept(final Chain chain) {
-            LLogger.d();
-            new AlertDialog.Builder(MainActivity.this)
-                .setTitle("拦截器的使用")
-                .setMessage("假设要跳转的模块需要定位服务，并假设检测到定位服务未开启，点击设置跳转到系统设置-定位服务，点击重定向转到其他页面（如说明页面）")
-                .setNeutralButton("设置", new OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    RouteRequest request = chain.getRequest();
-                    Intent intent = request.getIntent();
-                    intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    RouteResponse response = chain.onProcess(request);
-                    LLogger.d(response);
-                  }
-                })
-                .setNegativeButton("取消", new OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    chain.onBreak(new RouteBreakException("用户主动取消"));
-                  }
-                })
-                .setPositiveButton("重定向", new OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                    RouteRequest redirectRequest = new RouteRequest.Builder(chain.getRequest())
-                        .routePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY)
-                        .build();
-                    RouteResponse response = chain.onProcess(redirectRequest);
-                    LLogger.d(response);
-                  }
-                })
-                .show();
 
+            if (BuildConfig.DEBUG){
+              //假设 跳转时检测到 无法直接跳转到目标页面
+              new AlertDialog.Builder(MainActivity.this)
+                  .setTitle("拦截器的使用")
+                  .setMessage("假设要跳转的模块需要定位服务，并假设检测到定位服务未开启，点击设置跳转到系统设置-定位服务，点击重定向转到其他页面（如说明页面）")
+                  .setNeutralButton("设置", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                      RouteRequest request = chain.getRequest();
+                      Intent intent = request.getIntent();
+                      intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                      chain.onProcess(request);
+                    }
+                  })
+                  .setNegativeButton("取消", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                      chain.onBreak(new RouteBreakException("用户主动取消"));
+                    }
+                  })
+                  .setPositiveButton("重定向", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                      RouteRequest redirectRequest = new RouteRequest.Builder(chain.getRequest())
+                          .routePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY)//构造新的导航路径
+                          .build();
+                      chain.onProcess(redirectRequest);
+                    }
+                  })
+                  .show();
+            }else {
+              //假设可以 直接跳转
+              chain.onProcess(chain.getRequest());
+            }
           }
-
         });
 
   }
@@ -168,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(final Chain chain) {
-            LLogger.d("根据添加顺序调用 开始添加附带参数");
+            LLogger.d("路由配置，统一添加附带参数");
             Bundle extras = new Bundle();
-            extras.putInt("keyBuild", 100);
-            extras.putString("key", "注意同参数key覆盖");
+            extras.putInt("baseKeyInt", 1);
+            extras.putString("baseKeyStr", "路由配置的统一参数，注意覆盖问题");
             RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
                 .putIntent(extras)
                 .build());
@@ -185,14 +189,11 @@ public class MainActivity extends AppCompatActivity {
       public void intercept(final Chain chain) {
         LLogger.d("随参数注入拦截器 开始添加附带参数");
         Bundle extras = new Bundle();
-        extras.putString("key1", "value1");
-        extras.putString("key2", "value2");
-        extras.putInt("key", 100);
+        extras.putString("key1", "随方法参数拦截器注入的参数");
         RouteResponse response = chain.onProcess(new RouteRequest.Builder(chain.getRequest())
             .putIntent(extras)
             .build());
         LLogger.d(response);
-
       }
     });
 
@@ -201,16 +202,18 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationRouteInterceptorClick(View view) {
     Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())//添加的表中没有 app/third路径
-        .openDebugLog()
+        .openDebugLog()//开始调试日志
         .addRouteInterceptors(new RouteInterceptor() {
           @Override
           public boolean onResponse(Chain chain, RouteResponse response) {
+            //成功导航回调 只打印结果
             LLogger.d(chain, response);
             return false;
           }
 
           @Override
           public boolean onFailure(Chain chain, Throwable throwable) {
+            //失败导航回调
             LLogger.d(chain, throwable);
             if (throwable instanceof RouteBadRequestException) {
               Toast.makeText(MainActivity.this, "失败的导航，降级处理", Toast.LENGTH_SHORT).show();
@@ -239,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationNotDeclareClick(View view) {
     final Api api = new Builder(getApplication())
         .addRouteRoot(new RouteApp.Route())
-        .addRouteInterceptors(new AdapterRouteInterceptor(){
+        .addRouteInterceptors(new AdapterRouteInterceptor(){//提供空实现类 选择实现部分方法
           @Override
           public boolean onFailure(Chain chain, Throwable throwable) {
             Toast.makeText(MainActivity.this, "无法打开外部应用", Toast.LENGTH_SHORT).show();
@@ -257,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
     api.navigation(new Interceptor() {
       @Override
       public void intercept(Chain chain) {
-        //通过action 调起拨号
+        //通过action 调起拨号 一般都可以成功
 //        RouteRequest request = chain.getRequest();
 //        request.getIntent()
 //            .setAction(Intent.ACTION_DIAL)
@@ -268,10 +271,10 @@ public class MainActivity extends AppCompatActivity {
 //        //通过包名和类名 调起特定app 如微信
         RouteRequest request = chain.getRequest();
         Intent intent = request.getIntent();
-        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
-//        intent.setComponent(new ComponentName("com.sina.weibo", "com.sina.weibo.SplashActivity"));
-//        intent.setComponent(new ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity"));
-//        intent.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));
+        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));//微信
+//        intent.setComponent(new ComponentName("com.sina.weibo", "com.sina.weibo.SplashActivity"));//微博
+//        intent.setComponent(new ComponentName("com.tencent.mobileqq", "com.tencent.mobileqq.activity.SplashActivity"));//qq
+//        intent.setComponent(new ComponentName("com.ss.android.ugc.aweme", "com.ss.android.ugc.aweme.splash.SplashActivity"));//抖音
         intent.setAction(Intent.ACTION_MAIN);
         RouteResponse response = chain.onProcess(request);
         if (RouteResponse.isSuccess(response)) {

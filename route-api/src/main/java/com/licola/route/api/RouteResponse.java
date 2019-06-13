@@ -51,7 +51,7 @@ public class RouteResponse {
    * @return 创建显式导航结果
    */
   public static RouteResponse createResolveResponse() {
-    return new RouteResponse(null, null, true);
+    return new RouteResponse(null, null, false);
   }
 
   RouteResponse(String targetPath,

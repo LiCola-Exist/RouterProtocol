@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import com.licola.route.annotation.Route;
 
-@Route(path = "second")
+@Route(path = "second",description = "描述该页面功能，用于生成注释")
 public class SecondActivity extends AppCompatActivity {
 
 
