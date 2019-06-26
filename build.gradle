@@ -8,14 +8,17 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven {
+            url uri('./repo')
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+        classpath "com.licola.route.plugin:route-gradle-plugin:1.0.0"
     }
 }
 
@@ -24,7 +27,6 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
 
     tasks.withType(Javadoc) {
@@ -46,7 +48,7 @@ ext {
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 
     base = [
-            compileSdkVersion: 27,
+            compileSdkVersion: 28,
             minSdkVersion    : 17,
             targetSdkVersion : 23,
             versionCode      : 1,
@@ -58,7 +60,7 @@ ext {
 
     reverseSuperVersion = "1.2.0"
     routerVersion = "1.1.6"
-    butterknifeVersion = "9.0.0-rc1"
+    butterknifeVersion = "9.0.0-rc2"
     eventbusVersion = "3.1.1"
     greendaoVersion = "3.2.2"
     retrofit2Version = "2.4.0"
@@ -67,7 +69,7 @@ ext {
     mockitoVersion = '2.7.22'
     espressoVersion = '3.0.1'
 
-    leakcanaryVersion = "1.5.4"
+    leakcanaryVersion = "1.6.3"
 
     dependencies = [
             "support-compat"               : "com.android.support:support-compat:$supportLibraryVersion",
@@ -101,7 +103,7 @@ ext {
             "route-annotation"             : "com.licola:route-annotation:$routerVersion",
             "route-compiler"               : "com.licola:route-compiler:$routerVersion",
             //日志库
-            "llogger"                      : "com.licola:llogger:1.4.3",
+            "llogger"                      : "com.licola:llogger:1.5.1",
             //UI开发辅助工具
             "butterknife"                  : "com.jakewharton:butterknife:$butterknifeVersion",
             "butterknife-compiler"         : "com.jakewharton:butterknife-compiler:$butterknifeVersion",
@@ -135,6 +137,7 @@ ext {
             //内存检测
             "leakcanary-debug"             : "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion",
             "leakcanary-release"           : "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanaryVersion",
+            "leakcanary-fragment"          : "com.squareup.leakcanary:leakcanary-support-fragment:$leakcanaryVersion",
 
             //测试依赖
             "json"                         : "org.json:json:20180130",

@@ -6,7 +6,6 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
@@ -30,11 +29,15 @@ public class AnimationSharedActivity extends AppCompatActivity {
     setContentView(R.layout.activity_shared);
 
     final ImageView imageView = findViewById(R.id.iv_big_cover);
-    ViewCompat.setTransitionName(imageView, "cover");
-    supportPostponeEnterTransition();
 
     if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-      //手动停止 进入动画
+
+      postponeEnterTransition();
+
+      imageView.setTransitionName("cover");
+//      ViewCompat.setTransitionName(imageView, "cover");
+//      supportPostponeEnterTransition();
+
       Transition transition = getWindow().getSharedElementEnterTransition();
       transition.setDuration(1000);
       transition.addListener(new TransitionListener() {
@@ -72,9 +75,14 @@ public class AnimationSharedActivity extends AppCompatActivity {
           LLogger.d();
           loadImage(imageView);
           //延迟执行进入动画 可以作为图片加载时间等
-          supportStartPostponedEnterTransition();
+//          supportStartPostponedEnterTransition();
+//          startPostponedEnterTransition();
+
         }
       }, 200);
+
+      startPostponedEnterTransition();
+
 
     } else {
       loadImage(imageView);

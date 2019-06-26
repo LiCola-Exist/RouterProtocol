@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+apply plugin: "com.licola.route"
+
+e1 {
+    testVar = "first var"
+}
+
 android {
     compileSdkVersion rootProject.ext.base["compileSdkVersion"]
 
@@ -11,7 +17,7 @@ android {
         versionCode rootProject.ext.base["versionCode"]
         versionName rootProject.ext.base["versionName"]
 
-        multiDexEnabled true
+        multiDexEnabled false
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -50,11 +56,15 @@ dependencies {
 
     implementation rootProject.ext.dependencies["llogger"]
 
-
     implementation rootProject.ext.dependencies["multidex"]
     implementation rootProject.ext.dependencies["support-annotations"]
     implementation rootProject.ext.dependencies["appcompat-v7"]
     implementation rootProject.ext.dependencies["support-compat"]
+
+
+    debugImplementation rootProject.ext.dependencies["leakcanary-debug"]
+    debugImplementation rootProject.ext.dependencies["leakcanary-fragment"]
+    releaseImplementation rootProject.ext.dependencies["leakcanary-release"]
 
     testImplementation rootProject.ext.dependencies["junit"]
     testImplementation rootProject.ext.dependencies["mockito-core"]

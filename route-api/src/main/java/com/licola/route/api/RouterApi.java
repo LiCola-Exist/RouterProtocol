@@ -84,6 +84,9 @@ public final class RouterApi implements Api {
   @NonNull
   private Map<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
     HashMap<String, RouteMeta> totalMap = new HashMap<>();
+
+//    routeRoots.add(new com.licola.route.RouteApp.Route());
+
     for (RouteRoot routeRoot : routeRoots) {
 
       List<RouteMeta> metas = routeRoot.load();
@@ -147,13 +150,10 @@ public final class RouterApi implements Api {
     }
 
     public Api build() {
+
       //添加实现跳转功能的拦截器
       this.interceptors.add(new PackageInterceptor());
       this.interceptors.add(new MetaInterceptor());
-
-      if (routeRoots.isEmpty()) {
-        throw new IllegalArgumentException("routeRoots can not empty");
-      }
 
       return new RouterApi(this);
     }

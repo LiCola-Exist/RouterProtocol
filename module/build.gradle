@@ -1,18 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.jakewharton.butterknife'
-
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-        google()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    }
-    dependencies {
-        classpath 'com.jakewharton:butterknife-gradle-plugin:9.0.0-rc1'
-    }
-}
-
 
 android {
     compileSdkVersion rootProject.ext.base["compileSdkVersion"]
@@ -52,13 +38,6 @@ dependencies {
     implementation rootProject.ext.dependencies["support-annotations"]
     implementation rootProject.ext.dependencies["appcompat-v7"]
     implementation rootProject.ext.dependencies["support-compat"]
-
-    implementation(rootProject.ext.dependencies["butterknife"]) {
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-annotations'
-    }
-
-    annotationProcessor rootProject.ext.dependencies["butterknife-compiler"]
 
     testImplementation rootProject.ext.dependencies["junit"]
     testImplementation rootProject.ext.dependencies["mockito-core"]
