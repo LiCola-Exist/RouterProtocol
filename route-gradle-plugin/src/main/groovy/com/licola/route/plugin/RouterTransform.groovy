@@ -5,7 +5,7 @@ import com.android.build.gradle.internal.pipeline.TransformManager
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 
-class RegisterTransform extends Transform {
+class RouterTransform extends Transform {
 
     /**
      * transform 名字
@@ -41,22 +41,21 @@ class RegisterTransform extends Transform {
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
 
-        TransformOutputProvider outputProvider=transformInvocation.outputProvider
+        TransformOutputProvider outputProvider = transformInvocation.outputProvider
 
         def inputs = transformInvocation.inputs
 
-        RouterApiTransform readClass = new RouterApiTransform()
+        RouterCodeApi readClass = new RouterCodeApi()
 
         for (TransformInput input in inputs) {
             //scan class files
             for (DirectoryInput directoryInput in input.directoryInputs) {
-                println("dir:${directoryInput}")
 
-                File src=directoryInput.file
+                File src = directoryInput.file
 
-                File dest= outputProvider.getContentLocation(directoryInput.name,directoryInput.contentTypes,directoryInput.scopes,Format.DIRECTORY)
+                File dest = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
 
-                readClass.readClassWithPath(src,dest)
+                readClass.readClassWithPath(src, dest)
 
                 // copy to dest
                 FileUtils.copyDirectory(src, dest)
@@ -64,21 +63,20 @@ class RegisterTransform extends Transform {
 
             //scan all jars
             for (JarInput jarInput in input.jarInputs) {
-                println("jar:${jarInput}")
 
-                String destName= jarInput.name
+                String destName = jarInput.name
                 //rename
-                def hexName= DigestUtils.md5Hex(jarInput.file.absolutePath)
-                if (destName.endsWith(".jar")){
-                    destName=destName.substring(0,destName.length()-".jar".length())
+                def hexName = DigestUtils.md5Hex(jarInput.file.absolutePath)
+                if (destName.endsWith(".jar")) {
+                    destName = destName.substring(0, destName.length() - ".jar".length())
                 }
                 //input file
-                File src= jarInput.file
+                File src = jarInput.file
 
                 //output file
-                File dest= outputProvider.getContentLocation("${destName}_${hexName}",jarInput.contentTypes,jarInput.scopes,Format.JAR)
+                File dest = outputProvider.getContentLocation("${destName}_${hexName}", jarInput.contentTypes, jarInput.scopes, Format.JAR)
 
-                readClass.readClassWithJar(src,dest)
+                readClass.readClassWithJar(src, dest)
 
                 // copy to dest
                 FileUtils.copyFile(src, dest)

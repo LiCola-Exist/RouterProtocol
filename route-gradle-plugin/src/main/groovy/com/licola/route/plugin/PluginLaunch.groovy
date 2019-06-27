@@ -13,16 +13,6 @@ class PluginLaunch implements Plugin<Project>{
     @Override
     void apply(Project project) {
 
-        project.extensions.create("e1", Extension)
-
-        //创建读取外部设置的 task
-        project.task("readExt") << {
-            println "e1=${project["e1"].testVar}"
-        }
-
-        //监听构建事件
-//        project.gradle.addListener(new TaskTimeListener())
-
         def isApp= project.plugins.hasPlugin(AppPlugin)
         if (isApp){
             logger= project.getLogger()
@@ -30,7 +20,7 @@ class PluginLaunch implements Plugin<Project>{
             logger.info("project start plugin")
 
             def android= project.extensions.getByType(AppExtension)
-            def transform= new RegisterTransform()
+            def transform= new RouterTransform()
 
             android.registerTransform(transform)
         }

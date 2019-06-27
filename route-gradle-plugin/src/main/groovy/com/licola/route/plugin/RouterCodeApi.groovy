@@ -12,12 +12,17 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
-class RouterApiTransform {
+/**
+ * 核心的代码处理类
+ */
+class RouterCodeApi {
+
+    private static final boolean DEBUG = false
 
     private static final String TARGET_CLASS_PATH = "com/licola/route/api/RouterApi\$Builder.class"
     private static final String TARGET_CLASS_NAME = "com.licola.route.api.RouterApi\$Builder"
     private static final String TARGET_CLASS_METHOD_NAME = "build"
-    private static final String TARGETINVOKE_METHOD_NAME = "addRouteRoot"
+    private static final String TARGET_INVOKE_METHOD_NAME = "addRouteRoot"
 
     private static final String TARGET_INTERFACE_NAME = "com/licola/route/api/RouteRoot"
 
@@ -26,7 +31,9 @@ class RouterApiTransform {
     File targetApiFile
 
     void log(String msg) {
-        println("api: " + msg)
+        if (DEBUG) {
+            println("api: " + msg)
+        }
     }
 
     void process() {
@@ -87,7 +94,7 @@ class RouterApiTransform {
         routeImplInfoMap.entrySet().each { Map.Entry<String, File> entry ->
             //    routeRoots.add(new com.licola.route.RouteApp.Route());
             classPool.insertClassPath(entry.getValue().absolutePath)
-            codeList.add(" ${TARGETINVOKE_METHOD_NAME}(new ${entry.getKey()}());")
+            codeList.add(" ${TARGET_INVOKE_METHOD_NAME}(new ${entry.getKey()}());")
         }
 
         CtClass ctClass = classPool.get(TARGET_CLASS_NAME)
@@ -109,7 +116,7 @@ class RouterApiTransform {
             if (!filePath.endsWith(".class")) return
             def className = getClassName(root, filePath)
             InputStream inputStream = new FileInputStream(new File(filePath))
-//            log("filePath:${filePath} className:${className}")
+            log("filePath:${filePath} className:${className}")
             findRouteImpl(inputStream, className, dest)
             inputStream.close()
         }
@@ -123,7 +130,7 @@ class RouterApiTransform {
             String entryName = entry.getName()
             if (!entryName.endsWith(".class")) continue
             String className = entryName.substring(0, entryName.length() - ".class".length()).replaceAll("/", ".")
-//            log("entryName:${entryName} className:${className}")
+            log("entryName:${entryName} className:${className}")
             InputStream inputStream = jarFile.getInputStream(entry)
 
             findRouteImpl(inputStream, className, dest)

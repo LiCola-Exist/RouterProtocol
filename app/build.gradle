@@ -1,10 +1,6 @@
 apply plugin: 'com.android.application'
-
 apply plugin: "com.licola.route"
 
-e1 {
-    testVar = "first var"
-}
 
 android {
     compileSdkVersion rootProject.ext.base["compileSdkVersion"]

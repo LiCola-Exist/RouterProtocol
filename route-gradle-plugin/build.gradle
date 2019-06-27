@@ -1,5 +1,5 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
+//apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -15,17 +15,31 @@ dependencies {
     compile 'com.android.tools.build:gradle:3.3.2'
 }
 
-sourceCompatibility = "7"
-targetCompatibility = "7"
+sourceCompatibility = rootProject.sourceCompatibilityVersion
+targetCompatibility = rootProject.targetCompatibilityVersion
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            //设置插件的GAV参数
-            pom.groupId = 'com.licola.route.plugin'
-            pom.version = '1.0.0'
-            //文件发布到下面目录
-            repository(url: uri('../repo'))
-        }
+tasks.withType(JavaCompile) { javaOptions ->
+    javaOptions.options.encoding = "UTF-8"
+}
+
+allprojects {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
     }
 }
+
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            //设置插件的GAV参数
+//            pom.groupId = 'com.licola.route.plugin'
+//            pom.version = '1.0.0'
+//            //文件发布到下面目录
+//            repository(url: uri('../repo'))
+//        }
+//    }
+//}
+
+apply from : 'maven.gradle'
