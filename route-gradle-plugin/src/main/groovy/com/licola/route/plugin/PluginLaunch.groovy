@@ -25,16 +25,16 @@ class PluginLaunch implements Plugin<Project>{
 
         def isApp= project.plugins.hasPlugin(AppPlugin)
         if (isApp){
+            logger= project.getLogger()
 
+            logger.info("project start plugin")
+
+            def android= project.extensions.getByType(AppExtension)
+            def transform= new RegisterTransform()
+
+            android.registerTransform(transform)
         }
 
-        logger= project.getLogger()
 
-        logger.info("project start plugin")
-
-        def android= project.extensions.getByType(AppExtension)
-        def transform= new RegisterTransform()
-
-        android.registerTransform(transform)
     }
 }

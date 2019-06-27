@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Toast;
 import com.licola.llogger.LLogger;
 import com.licola.route.RouteApp;
-import com.licola.route.RouteUser;
 import com.licola.route.annotation.Route;
 import com.licola.route.annotation.RoutePath;
 import com.licola.route.api.AdapterRouteInterceptor;
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationSimpleClick(View view) {
     //step1：构造路由api实例
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())//选择注入的路由表
         .build();
 
     //step2：开始导航
@@ -64,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
    */
   public void onNavigationRequestCodeClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .build();
 
     api.navigation(RoutePath.makePath(RouteApp.MODULE_NAME, RouteApp.SECOND_ACTIVITY),
@@ -83,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
    */
   public void onNavigationUseProtocolClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .build();
 
     //模块内 跳转 路径参数带注解提示
@@ -96,8 +92,6 @@ public class MainActivity extends AppCompatActivity {
    */
   public void onNavigationThirdClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
-        .addRouteRoot(new MyRoute.Route())
         .build();
 
     api.navigation("other/third");
@@ -109,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
    */
   public void onNavigationInterceptorClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())//注入app模块的路由
-        .addRouteRoot(new RouteUser.Route())//注入module模块的路由
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(Chain chain) {
@@ -151,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                       RouteRequest redirectRequest = new RouteRequest.Builder(chain.getRequest())
-                          .routePath(RouteUser.MODULE_NAME, RouteUser.REGISTER_ACTIVITY)//构造新的导航路径
+                          .routePath(RouteApp.MODULE_NAME, RouteApp.REDIRECT_ACTIVITY)//构造新的导航路径
                           .build();
                       chain.onProcess(redirectRequest);
                     }
@@ -168,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
   public void onNavigationInterceptorArgClick(final View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .addInterceptors(new Interceptor() {
           @Override
           public void intercept(final Chain chain) {
@@ -201,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
 
   public void onNavigationRouteInterceptorClick(View view) {
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())//添加的表中没有 app/third路径
         .openDebugLog()//开始调试日志
         .addRouteInterceptors(new RouteInterceptor() {
           @Override
@@ -241,7 +231,6 @@ public class MainActivity extends AppCompatActivity {
 
   public void onNavigationNotDeclareClick(View view) {
     final Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .addRouteInterceptors(new AdapterRouteInterceptor(){//提供空实现类 选择实现部分方法
           @Override
           public boolean onFailure(Chain chain, Throwable throwable) {
@@ -289,7 +278,6 @@ public class MainActivity extends AppCompatActivity {
   public void onNavigationAnimationClick(final View view) {
 
     final Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .build();
 
     RouteApp.Api appApi = new RouteApp.Api(api);

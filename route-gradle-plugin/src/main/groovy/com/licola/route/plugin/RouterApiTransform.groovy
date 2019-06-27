@@ -14,36 +14,35 @@ import java.util.zip.ZipEntry
 
 class RouterApiTransform {
 
-    private static final String TARGET_CLASS_PATH = "com/licola/route/api/RouterApi.class"
-    private static final String TARGET_CLASS_NAME = "com.licola.route.api.RouterApi"
-    private static final String TARGET_CLASS_METHOD_NAME = "loadRoute"
+    private static final String TARGET_CLASS_PATH = "com/licola/route/api/RouterApi\$Builder.class"
+    private static final String TARGET_CLASS_NAME = "com.licola.route.api.RouterApi\$Builder"
+    private static final String TARGET_CLASS_METHOD_NAME = "build"
+    private static final String TARGETINVOKE_METHOD_NAME = "addRouteRoot"
 
     private static final String TARGET_INTERFACE_NAME = "com/licola/route/api/RouteRoot"
 
-    List<String> routeImplClassList = new ArrayList<>()
+    HashMap<String, File> routeImplInfoMap = new HashMap<>()
 
-    File targetFile
+    File targetApiFile
 
     void log(String msg) {
-        println("read class:" + msg)
+        println("api: " + msg)
     }
 
     void process() {
-        if (routeImplClassList.isEmpty()) {
+        if (routeImplInfoMap.isEmpty()) {
             return
         }
 
-        for (String item : routeImplClassList) {
-            log("router:${item}")
-        }
+        log("router:${routeImplInfoMap.toMapString()}")
 
-        if (targetFile != null && targetFile.getName().endsWith(".jar")) {
-            insertCode(targetFile)
+        if (targetApiFile != null && targetApiFile.getName().endsWith(".jar")) {
+            insertCode(targetApiFile)
         }
     }
 
     void insertCode(File jarFile) {
-        log("targetFile:${jarFile.toString()}")
+        log("targetApiFile:${jarFile.toString()}")
         def optJar = new File(jarFile.getParent(), jarFile.name + ".opt")
         if (optJar.exists()) {
             optJar.delete()
@@ -78,43 +77,45 @@ class RouterApiTransform {
     }
 
     byte[] hackTarget(File jarFile) {
+        log("start hack")
+
         ClassPool classPool = ClassPool.getDefault()
         classPool.insertClassPath(jarFile.absolutePath)
+
+        List<String> codeList = new ArrayList<>()
+
+        routeImplInfoMap.entrySet().each { Map.Entry<String, File> entry ->
+            //    routeRoots.add(new com.licola.route.RouteApp.Route());
+            classPool.insertClassPath(entry.getValue().absolutePath)
+            codeList.add(" ${TARGETINVOKE_METHOD_NAME}(new ${entry.getKey()}());")
+        }
 
         CtClass ctClass = classPool.get(TARGET_CLASS_NAME)
         CtMethod ctMethod = ctClass.getDeclaredMethod(TARGET_CLASS_METHOD_NAME)
 
-//        ctMethod.insertBefore("throw new RuntimeException(\"插入异常代码\");")
-
-        for (String item : routeImplClassList) {
-            //    routeRoots.add(new com.licola.route.RouteApp.Route());
-            ctMethod.insertBefore(" routeRoots.add(new ${item}());")
+        codeList.each { String code ->
+            ctMethod.insertBefore(code)
         }
 
         def bytes = ctClass.toBytecode()
-        ctClass.stopPruning(true)
-        ctClass.defrost()
 
         return bytes
     }
 
-    void readClassWithPath(File dir) {
-        log("input:${dir.absolutePath}")
-        def root = dir.absolutePath
-        dir.eachFileRecurse { File file ->
+    void readClassWithPath(File input, File dest) {
+        def root = input.absolutePath
+        input.eachFileRecurse { File file ->
             String filePath = file.absoluteFile
             if (!filePath.endsWith(".class")) return
             def className = getClassName(root, filePath)
             InputStream inputStream = new FileInputStream(new File(filePath))
-            log("filePath:${filePath} className:${className}")
-            findRouteImpl(inputStream, className)
+//            log("filePath:${filePath} className:${className}")
+            findRouteImpl(inputStream, className, dest)
             inputStream.close()
         }
     }
 
     void readClassWithJar(File input, File dest) {
-        log("input:${input.absolutePath} dest:${dest}")
-
         JarFile jarFile = new JarFile(input)
         Enumeration<JarEntry> entries = jarFile.entries()
         while (entries.hasMoreElements()) {
@@ -122,10 +123,10 @@ class RouterApiTransform {
             String entryName = entry.getName()
             if (!entryName.endsWith(".class")) continue
             String className = entryName.substring(0, entryName.length() - ".class".length()).replaceAll("/", ".")
-            log("entryName:${entryName} className:${className}")
+//            log("entryName:${entryName} className:${className}")
             InputStream inputStream = jarFile.getInputStream(entry)
 
-            findRouteImpl(inputStream, className)
+            findRouteImpl(inputStream, className, dest)
 
             findRouteTargetFile(entryName, dest)
 
@@ -133,16 +134,16 @@ class RouterApiTransform {
         }
     }
 
-    boolean findRouteTargetFile(String entryName, File file) {
+    boolean findRouteTargetFile(String entryName, File targetFile) {
         if (TARGET_CLASS_PATH == entryName) {
-            targetFile = file
+            targetApiFile = targetFile
             return true
         }
 
         return false
     }
 
-    boolean findRouteImpl(InputStream inputStream, String className) {
+    boolean findRouteImpl(InputStream inputStream, String className, File targetFile) {
         ClassReader reader = new ClassReader(inputStream)
         ClassNode node = new ClassNode()
         reader.accept(node, 1)
@@ -154,7 +155,7 @@ class RouterApiTransform {
 
         for (String interfaceName : interfaces) {
             if (TARGET_INTERFACE_NAME == interfaceName) {
-                routeImplClassList.add(className)
+                routeImplInfoMap.put(className, targetFile)
                 return true
             }
         }

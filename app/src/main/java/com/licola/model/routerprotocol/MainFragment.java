@@ -52,7 +52,6 @@ public class MainFragment extends Fragment {
   private void onNavigationRequestCodeFragmentClick() {
 
     Api api = new RouterApi.Builder(getActivity().getApplication())
-        .addRouteRoot(new Route())
         .openDebugLog()
         .build();
 

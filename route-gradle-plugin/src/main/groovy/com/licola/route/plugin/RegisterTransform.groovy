@@ -12,7 +12,7 @@ class RegisterTransform extends Transform {
      */
     @Override
     String getName() {
-        return "MyTransform"
+        return "com.licola.router"
     }
 
     /**
@@ -56,7 +56,7 @@ class RegisterTransform extends Transform {
 
                 File dest= outputProvider.getContentLocation(directoryInput.name,directoryInput.contentTypes,directoryInput.scopes,Format.DIRECTORY)
 
-                readClass.readClassWithPath(src)
+                readClass.readClassWithPath(src,dest)
 
                 // copy to dest
                 FileUtils.copyDirectory(src, dest)

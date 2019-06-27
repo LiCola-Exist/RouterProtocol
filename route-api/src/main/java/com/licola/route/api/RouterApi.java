@@ -83,9 +83,8 @@ public final class RouterApi implements Api {
 
   @NonNull
   private Map<String, RouteMeta> loadRoute(List<RouteRoot> routeRoots) {
-    HashMap<String, RouteMeta> totalMap = new HashMap<>();
 
-//    routeRoots.add(new com.licola.route.RouteApp.Route());
+    HashMap<String, RouteMeta> totalMap = new HashMap<>();
 
     for (RouteRoot routeRoot : routeRoots) {
 
@@ -150,6 +149,8 @@ public final class RouterApi implements Api {
     }
 
     public Api build() {
+
+//      addRouteRoot(new com.licola.route.RouteApp$Route());
 
       //添加实现跳转功能的拦截器
       this.interceptors.add(new PackageInterceptor());
