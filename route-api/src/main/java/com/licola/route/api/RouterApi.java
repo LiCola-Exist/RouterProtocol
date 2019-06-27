@@ -149,7 +149,7 @@ public final class RouterApi implements Api {
     }
 
     public Api build() {
-
+      //开启插件 会自动扫描路由相关配置代码 插入类似代码
 //      addRouteRoot(new com.licola.route.RouteApp$Route());
 
       //添加实现跳转功能的拦截器

@@ -3,17 +3,20 @@
 [ ![Download](https://api.bintray.com/packages/licola/maven/RouterProtocol-annotation/images/download.svg) ](https://bintray.com/licola/maven/RouterProtocol-annotation/_latestVersion)
 [ ![Download](https://api.bintray.com/packages/licola/maven/RouterProtocol-api/images/download.svg) ](https://bintray.com/licola/maven/RouterProtocol-api/_latestVersion)
 [ ![Download](https://api.bintray.com/packages/licola/maven/RouterProtocol-compiler/images/download.svg) ](https://bintray.com/licola/maven/RouterProtocol-compiler/_latestVersion)
-
+[ ![Download](https://api.bintray.com/packages/licola/maven/RouterProtocol-gradle-plugin/images/download.svg) ](https://bintray.com/licola/maven/RouterProtocol-gradle-plugin/_latestVersion)
 # 作用
-路由库，动态生成路由配置，注解参数友好化提示，拦截器支持丰富的功能定制
+路由库，动态生成路由配置，注解参数友好化提示，拦截器支持丰富的功能定制，插件自动处理配置
 
 # 引用
 ```java
-    implementation 'com.licola:route-api:1.3.3'
-    implementation 'com.licola:route-annotation:1.3.3'
-    annotationProcessor 'com.licola:route-compiler:1.3.3'
+    implementation 'com.licola:route-api:1.4.1'
+    implementation 'com.licola:route-annotation:1.4.1'
+    annotationProcessor 'com.licola:route-compiler:1.4.1'
 
 ```
+
+# 更新日志
+- 1.4.1:加入gradle插件支持，代码生成自动注入路由表
 
 # 使用
 
@@ -21,7 +24,6 @@
 ```java
     //step1：构造路由api实例
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())//选择注入的路由表
         .build();
     
     //step2：开始导航
@@ -31,7 +33,7 @@
 
 ```
 
-## 注解配置
+## 注解使用
 这里认为Activity才是导航目标，所以注解只能打在Activity上
 ```java
 import com.licola.route.annotation.Route;
@@ -44,7 +46,7 @@ public class SecondActivity extends AppCompatActivity {
 ```
 
 ## 模块配置
-在需要生成路由api的模块的gradle配置内加入
+在需要生成路由的模块的gradle配置内加入
 ```groovy
 android {
 
@@ -59,7 +61,42 @@ android {
     
 }
 
+dependencies {
+    //?替换成最新版 
+    implementation 'com.licola:route-api:?'
+    implementation 'com.licola:route-annotation:?'
+    annotationProcessor 'com.licola:route-compiler:?'
+}
+
 ```
+
+## 插件配置
+在1.4.0版本之前，需要手动注入路由表
+```java
+Api api = new Builder(getApplication())
+        .addRouteRoot(new RouteApp.Route())//选择注入的路由表
+        .build();
+```
+在加入插件配置之后就可以省注入过程，由插件扫描代码自动注入
+
+顶层模块build.gradle加入路径
+```groovy
+buildscript {
+
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.licola:route-gradle-plugin:1.4.1"
+    }
+}
+```
+app模块build.gradle
+```groovy
+apply plugin: 'com.android.application'
+apply plugin: "com.licola.route"
+```
+
 
 ## 生成的代码示例
 这里的代码由注解自动生成，类名由Route+moduleName构成，如app模块的，就生成RouteApp类
@@ -72,7 +109,6 @@ android {
 ```java
     //step1：构造路由api实例
     Api api = new Builder(getApplication())
-        .addRouteRoot(new RouteApp.Route())
         .build();
 
     //stpe2：实例化动态生成的api

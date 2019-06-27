@@ -17,7 +17,7 @@ import java.util.zip.ZipEntry
  */
 class RouterCodeApi {
 
-    private static final boolean DEBUG = false
+    private static final boolean DEBUG = true
 
     private static final String TARGET_CLASS_PATH = "com/licola/route/api/RouterApi\$Builder.class"
     private static final String TARGET_CLASS_NAME = "com.licola.route.api.RouterApi\$Builder"
@@ -49,7 +49,7 @@ class RouterCodeApi {
     }
 
     void insertCode(File jarFile) {
-        log("targetApiFile:${jarFile.toString()}")
+        log("insercode targetApiFile:${jarFile.toString()}")
         def optJar = new File(jarFile.getParent(), jarFile.name + ".opt")
         if (optJar.exists()) {
             optJar.delete()
@@ -89,6 +89,12 @@ class RouterCodeApi {
         ClassPool classPool = ClassPool.getDefault()
         classPool.insertClassPath(jarFile.absolutePath)
 
+        CtClass ctClass = classPool.get(TARGET_CLASS_NAME)
+        if (ctClass.frozen) {
+            //只需要修改一次 如果被修改过直接返回
+            return ctClass.toBytecode()
+        }
+
         List<String> codeList = new ArrayList<>()
 
         routeImplInfoMap.entrySet().each { Map.Entry<String, File> entry ->
@@ -97,7 +103,6 @@ class RouterCodeApi {
             codeList.add(" ${TARGET_INVOKE_METHOD_NAME}(new ${entry.getKey()}());")
         }
 
-        CtClass ctClass = classPool.get(TARGET_CLASS_NAME)
         CtMethod ctMethod = ctClass.getDeclaredMethod(TARGET_CLASS_METHOD_NAME)
 
         codeList.each { String code ->
@@ -113,10 +118,11 @@ class RouterCodeApi {
         def root = input.absolutePath
         input.eachFileRecurse { File file ->
             String filePath = file.absoluteFile
+            if (!file.isFile()) return
             if (!filePath.endsWith(".class")) return
             def className = getClassName(root, filePath)
             InputStream inputStream = new FileInputStream(new File(filePath))
-            log("filePath:${filePath} className:${className}")
+//            log("filePath:${filePath} className:${className}")
             findRouteImpl(inputStream, className, dest)
             inputStream.close()
         }
@@ -130,7 +136,7 @@ class RouterCodeApi {
             String entryName = entry.getName()
             if (!entryName.endsWith(".class")) continue
             String className = entryName.substring(0, entryName.length() - ".class".length()).replaceAll("/", ".")
-            log("entryName:${entryName} className:${className}")
+//            log("entryName:${entryName} className:${className}")
             InputStream inputStream = jarFile.getInputStream(entry)
 
             findRouteImpl(inputStream, className, dest)
@@ -139,6 +145,7 @@ class RouterCodeApi {
 
             inputStream.close()
         }
+        jarFile.close()
     }
 
     boolean findRouteTargetFile(String entryName, File targetFile) {
@@ -171,7 +178,7 @@ class RouterCodeApi {
 
     }
 
-    String getClassName(String root, String classPath) {
+    static String getClassName(String root, String classPath) {
         return classPath.substring(root.length() + "/".length(), classPath.length() - ".class".length()).replaceAll("/", ".")
     }
 }

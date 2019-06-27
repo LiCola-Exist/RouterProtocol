@@ -12,7 +12,7 @@ class RouterTransform extends Transform {
      */
     @Override
     String getName() {
-        return "com.licola.router"
+        return this.class.simpleName
     }
 
     /**
